@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Online Payment</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+            crossorigin="anonymous"></script>
+</head>
+<body>
+<div class="d-flex flex-column gap-0 w-25 align-items-center mx-auto my-5">
+    <div id="timer">
+        <label>Remaining time:</label>
+        <span id="countdown"></span>
+    </div>
+    <div class="input-group mb-3 align-middle px-4 border border-success position-relative bg-secondary
+        bg-gradient">
+
+        <div class="input-group mb-3 align-middle pt-4 ">
+            <h3 class="px-4 flex-md-row">Online payment</h3>
+        </div>
+        <div class="input-group mb-3 align-middle pt-1">
+            <label for="user-name" class="px-4" style="font-weight: bold">User Name</label>
+            <input style="text-align:center" type="text" class="form-control border border-dark" id="user-name" aria-label="Username"
+                   aria-describedby="basic-addon1">
+        </div>
+        <div class="input-group mb-3 align-middle">
+            <label style="font-weight: bold" for="order-id" class="px-4">Order ID</label>
+            <input style="text-align:center" type="text" class="form-control border border-dark" id="order-id" aria-label="Username"
+                   aria-describedby="basic-addon1">
+        </div>
+        <div class="input-group mb-3 align-middle">
+            <label style="font-weight: bold" for="card-number" class="px-4">Card Number</label>
+            <input style="text-align:center" type="text" class="form-control border border-dark" id="card-number" aria-label="Username"
+                   aria-describedby="basic-addon1">
+        </div>
+        <div class="input-group mb-3 align-middle">
+            <label style="font-weight: bold" for="cvv2" class="px-4">CVV2</label>
+            <input style="text-align:center" type="password" class="form-control border border-dark" id="cvv2" aria-label="Username"
+                   aria-describedby="basic-addon1">
+        </div>
+        <div class="input-group mb-3 align-middle">
+            <label style="font-weight: bold" for="otp" class="px-4">OTP</label>
+            <input style="text-align:center" type="password" class="form-control border border-dark" id="otp" aria-label="Username"
+                   aria-describedby="basic-addon1">
+        </div>
+        <div class="input-group mb-3 align-middle">
+            <div class="border border-dark">
+                <img alt="captcha" id="captcha-image" onclick="makeCaptcha() ">
+            </div>
+            <input style="text-align:center" type="text" class="form-control ms-5 border border-dark" id="captcha-text" aria-label="Username"
+                   aria-describedby="basic-addon1">
+        </div>
+    </div>
+
+    <div>
+        <button style="width: 400px" class="btn btn-primary btn-lg btn-block align-middle" onclick="myFunction()" id="send-button">OK</button>
+    </div>
+</div>
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+<script>
+    function myFunction() {
+        let customerUsername = $("#user-name").val();
+        let orderId = $("#order-id").val();
+        let creditCardNumber = $("#card-number").val();
+        let cvv2 = $("#cvv2").val();
+        let secondPassword = $("#second-password").val();
+        let captchaValue = $("#captcha-text").val();
+
+        const obj = {
+            customerUsername,
+            orderId,
+            creditCardNumber,
+            cvv2,
+            secondPassword,
+            captchaValue
+        };
+
+        userAction(obj)
+    }
+
+    const userAction = async (formData) => {
+        const response = await fetch('http://localhost:8080/customer/onlinePayment', {
+            method: 'POST',
+            body: JSON.stringify(formData),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then(s => {
+            if (s.status === 200)
+                alert("payment successful")
+            else
+                alert("payment failed")
+        })
+    }
+</script>
+<script>
+    makeCaptcha();
+
+    function makeCaptcha() {
+        let image = document.getElementById('captcha-image');
+        fetch('http://localhost:8080/customer/captcha')
+            .then(response => response.json())
+            .then(json => {
+                image.setAttribute('src', json.base64)
+            })
+
+    }
+</script>
+<script>
+    let timeLimit = 600;
+
+    function updateTimerDisplay() {
+        let minutes = Math.floor(timeLimit / 60);
+        let seconds = timeLimit % 60;
+        document.getElementById("countdown").textContent = (minutes < 10 ? "0" : "") +minutes
+            + ":" + (seconds < 10 ? "0" : "") + seconds;
+    }
+
+    let countdownTimer = setInterval(function() {
+        updateTimerDisplay();
+        timeLimit--;
+        if (timeLimit <= 0) {
+            clearInterval(countdownTimer);
+            alert("Time limit exceeded. Please refresh the page.");
+            document.getElementById('send-button').setAttribute('disabled',true)
+        }
+    }, 1000);
+</script>
+</body>
+</html>
