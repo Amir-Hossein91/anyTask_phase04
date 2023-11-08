@@ -10,6 +10,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.*;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +26,7 @@ public class PersonServiceImpl implements PersonService {
     private final CustomerServiceImpl customerService;
     private final TechnicianServiceImpl technicianService;
     private final SubAssistanceServiceImpl subAssistanceService;
+    private final BCryptPasswordEncoder passwordEncoder;
 
 
     @PersistenceContext
@@ -34,13 +36,15 @@ public class PersonServiceImpl implements PersonService {
                              ManagerServiceImpl managerService,
                              CustomerServiceImpl customerService,
                              TechnicianServiceImpl technicianService,
-                             SubAssistanceServiceImpl subAssistanceService) {
+                             SubAssistanceServiceImpl subAssistanceService,
+                             BCryptPasswordEncoder passwordEncoder) {
         super();
         this.repository = repository;
         this.managerService = managerService;
         this.customerService = customerService;
         this.technicianService = technicianService;
         this.subAssistanceService = subAssistanceService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
@@ -85,6 +89,7 @@ public class PersonServiceImpl implements PersonService {
     @Transactional
     public Customer registerCustomer(Customer person) {
         person.setRole(Roles.ROLE_CUSTOMER);
+        person.setPassword(passwordEncoder.encode(person.getPassword()));
         return customerService.saveOrUpdate(person);
     }
 
@@ -93,6 +98,7 @@ public class PersonServiceImpl implements PersonService {
         if (technician == null)
             return null;
         technician.setRole(Roles.ROLE_TECHNICIAN);
+        technician.setPassword(passwordEncoder.encode(technician.getPassword()));
         return technicianService.saveOrUpdate(technician);
     }
 
@@ -101,13 +107,14 @@ public class PersonServiceImpl implements PersonService {
         if (managerService.doesManagerExist())
             throw new IllegalArgumentException("This organization already has a defined manager");
         manager.setRole(Roles.ROLE_MANAGER);
+        manager.setPassword(passwordEncoder.encode(manager.getPassword()));
         return managerService.saveOrUpdate(manager);
     }
 
     public Person login(String username, String password) {
 
         Person fetched = findByUsername(username);
-        if (fetched == null || !fetched.getPassword().equals(password))
+        if (fetched == null || !passwordEncoder.matches(password, fetched.getPassword()))
             throw new NotFoundException(Constants.INCORRECT_USERNAME_PASSWORD);
         return fetched;
     }
