@@ -43,8 +43,6 @@ public class Person extends BaseEntity implements UserDetails {
     @NotNull(message = "Username can not be null")
     @Pattern(regexp = "^[^\\s]+$", message = "Username can not be empty")
     private String username;
-    @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*\\d)[a-zA-Z\\d]{8,}$", message = "Password must be exactly " +
-            "8 characters containing digits and letters")
     private String password;
     @Column(name = "registration_date")
     private LocalDateTime registrationDate;
