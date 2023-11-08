@@ -1,6 +1,7 @@
 package com.example.phase_04.service.impl;
 
 import com.example.phase_04.entity.*;
+import com.example.phase_04.entity.enums.Roles;
 import com.example.phase_04.exceptions.NotFoundException;
 import com.example.phase_04.repository.PersonRepository;
 import com.example.phase_04.service.PersonService;
@@ -83,6 +84,7 @@ public class PersonServiceImpl implements PersonService {
 
     @Transactional
     public Customer registerCustomer(Customer person) {
+        person.setRole(Roles.ROLE_CUSTOMER);
         return customerService.saveOrUpdate(person);
     }
 
@@ -90,6 +92,7 @@ public class PersonServiceImpl implements PersonService {
     public Technician registerTechnician(Technician technician) {
         if (technician == null)
             return null;
+        technician.setRole(Roles.ROLE_TECHNICIAN);
         return technicianService.saveOrUpdate(technician);
     }
 
@@ -97,6 +100,7 @@ public class PersonServiceImpl implements PersonService {
     public Manager registerManager(Manager manager) {
         if (managerService.doesManagerExist())
             throw new IllegalArgumentException("This organization already has a defined manager");
+        manager.setRole(Roles.ROLE_MANAGER);
         return managerService.saveOrUpdate(manager);
     }
 
