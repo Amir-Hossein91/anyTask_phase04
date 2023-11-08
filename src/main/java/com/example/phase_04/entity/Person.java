@@ -1,7 +1,7 @@
 package com.example.phase_04.entity;
 
 import com.example.phase_04.entity.base.BaseEntity;
-import com.example.phase_04.entity.enums.Roles;
+import com.example.phase_04.entity.enums.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -47,7 +47,7 @@ public class Person extends BaseEntity implements UserDetails {
     @Column(name = "registration_date")
     private LocalDateTime registrationDate;
     @Enumerated(value = EnumType.STRING)
-    private Roles role;
+    private Role role;
     private boolean enabled;
 
     public String toString() {
