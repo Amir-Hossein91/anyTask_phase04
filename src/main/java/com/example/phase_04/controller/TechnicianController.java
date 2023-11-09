@@ -1,23 +1,17 @@
 package com.example.phase_04.controller;
 
 import com.example.phase_04.controller.requestObjects.SeeScore;
-import com.example.phase_04.dto.request.TechnicianRequestDTO;
 import com.example.phase_04.dto.request.TechnicianSuggestionRequestDTO;
 import com.example.phase_04.dto.response.OrderResponseDTO;
 import com.example.phase_04.dto.response.SubAssistanceResponseDTO;
-import com.example.phase_04.dto.response.TechnicianResponseDTO;
 import com.example.phase_04.dto.response.TechnicianSuggestionResponseDTO;
 import com.example.phase_04.entity.Order;
 import com.example.phase_04.entity.SubAssistance;
-import com.example.phase_04.entity.Technician;
 import com.example.phase_04.entity.TechnicianSuggestion;
-import com.example.phase_04.entity.enums.TechnicianStatus;
 import com.example.phase_04.mapper.OrderMapper;
 import com.example.phase_04.mapper.SubAssistanceMapper;
-import com.example.phase_04.mapper.TechnicianMapper;
 import com.example.phase_04.mapper.TechnicianSuggestionMapper;
 import com.example.phase_04.service.impl.OrderServiceImpl;
-import com.example.phase_04.service.impl.PersonServiceImpl;
 import com.example.phase_04.service.impl.SubAssistanceServiceImpl;
 import com.example.phase_04.service.impl.TechnicianServiceImpl;
 import jakarta.validation.Valid;
@@ -26,9 +20,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,37 +27,17 @@ import java.util.List;
 @RestController
 @RequestMapping("/technician")
 public class TechnicianController {
-    public static int counter = 0;
 
     private final TechnicianServiceImpl technicianService;
-    private final PersonServiceImpl personService;
     private final OrderServiceImpl orderService;
     private final SubAssistanceServiceImpl subAssistanceService;
 
     public TechnicianController (TechnicianServiceImpl technicianService,
-                                 PersonServiceImpl personService,
                                  OrderServiceImpl orderService,
                                  SubAssistanceServiceImpl subAssistanceService){
         this.technicianService = technicianService;
-        this.personService = personService;
         this.orderService = orderService;
         this.subAssistanceService = subAssistanceService;
-    }
-
-    @PostMapping(value = "/register")
-    public ResponseEntity<TechnicianResponseDTO> saveTechnician (@RequestBody @Valid TechnicianRequestDTO requestDTO) throws IOException {
-        Technician technician = TechnicianMapper.INSTANCE.dtoToModel(requestDTO);
-        technician.setRegistrationDate(LocalDateTime.now());
-
-        technician.setTechnicianStatus(TechnicianStatus.NEW);
-
-        personService.registerTechnician(technician);
-
-        byte[] image = technician.getImage();
-        Path path = Path.of("C:\\Users\\AmirHossein\\IdeaProjects\\anyTask\\image_output\\technician_"+(++counter)+".jpg");
-        Files.write(path,image);
-
-        return new ResponseEntity<>(TechnicianMapper.INSTANCE.modelToDto(technician), HttpStatus.CREATED);
     }
 
     @GetMapping("/relatedOrders/{username}")

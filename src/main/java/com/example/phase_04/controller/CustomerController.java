@@ -1,16 +1,13 @@
 package com.example.phase_04.controller;
 
 import com.example.phase_04.controller.requestObjects.*;
-import com.example.phase_04.dto.request.CustomerRequestDTO;
 import com.example.phase_04.dto.request.OrderRequestDTO;
 import com.example.phase_04.dto.request.PaymentRequestDTO;
 import com.example.phase_04.dto.response.*;
-import com.example.phase_04.entity.Customer;
 import com.example.phase_04.entity.Order;
 import com.example.phase_04.entity.SubAssistance;
 import com.example.phase_04.entity.TechnicianSuggestion;
 import com.example.phase_04.entity.enums.OrderStatus;
-import com.example.phase_04.mapper.CustomerMapper;
 import com.example.phase_04.mapper.OrderMapper;
 import com.example.phase_04.mapper.SubAssistanceMapper;
 import com.example.phase_04.mapper.TechnicianSuggestionMapper;
@@ -36,30 +33,18 @@ public class CustomerController {
     private String captchaText = "";
 
     private final CustomerServiceImpl customerService;
-    private final PersonServiceImpl personService;
     private final SubAssistanceServiceImpl subAssistanceService;
     private final AssistanceServiceImpl assistanceService;
     private final OrderServiceImpl orderService;
 
     public CustomerController(CustomerServiceImpl customerService,
-                              PersonServiceImpl personService,
                               SubAssistanceServiceImpl subAssistanceService,
                               AssistanceServiceImpl assistanceService,
                               OrderServiceImpl orderService) {
         this.customerService = customerService;
-        this.personService = personService;
         this.subAssistanceService = subAssistanceService;
         this.assistanceService = assistanceService;
         this.orderService = orderService;
-    }
-
-    @PostMapping("/register")
-    public ResponseEntity<CustomerResponseDTO> saveCustomer (@RequestBody @Valid CustomerRequestDTO requestDTO){
-        Customer customer = CustomerMapper.INSTANCE.dtoToModel(requestDTO);
-        customer.setRegistrationDate(LocalDateTime.now());
-
-        personService.registerCustomer(customer);
-        return new ResponseEntity<>(CustomerMapper.INSTANCE.modelToDto(customerService.findById(customer.getId())), HttpStatus.CREATED);
     }
 
     @GetMapping("/seeSubAssistance/{username}")

@@ -5,7 +5,6 @@ import com.example.phase_04.controller.requestObjects.ChangeBasePrice;
 import com.example.phase_04.controller.requestObjects.ChangeDescription;
 import com.example.phase_04.controller.requestObjects.Filter;
 import com.example.phase_04.dto.request.AssistanceRequestDTO;
-import com.example.phase_04.dto.request.ManagerRequestDTO;
 import com.example.phase_04.dto.request.SubAssistanceRequestDTO;
 import com.example.phase_04.dto.response.*;
 import com.example.phase_04.entity.*;
@@ -21,7 +20,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.*;
 
 @RestController
@@ -41,14 +39,6 @@ public class ManagerController {
         this.assistanceService = assistanceService;
         this.subAssistanceService = subAssistanceService;
         this.technicianService = technicianService;
-    }
-
-    @PostMapping("/register")
-    public ResponseEntity<ManagerResponseDTO> saveManager(@RequestBody @Valid
-                                                          ManagerRequestDTO requestDTO) {
-        Manager manager = ManagerMapper.INSTANCE.dtoToModel(requestDTO);
-        manager.setRegistrationDate(LocalDateTime.now());
-        return new ResponseEntity<>(ManagerMapper.INSTANCE.modelToDto(personService.registerManager(manager)), HttpStatus.CREATED);
     }
 
     @PostMapping("/addAssistance")
