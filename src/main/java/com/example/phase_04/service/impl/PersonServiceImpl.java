@@ -2,6 +2,7 @@ package com.example.phase_04.service.impl;
 
 import com.example.phase_04.entity.*;
 import com.example.phase_04.entity.enums.Role;
+import com.example.phase_04.entity.enums.TechnicianStatus;
 import com.example.phase_04.exceptions.NotFoundException;
 import com.example.phase_04.repository.PersonRepository;
 import com.example.phase_04.service.PersonService;
@@ -189,5 +190,16 @@ public class PersonServiceImpl implements PersonService {
         }
 
         return result;
+    }
+
+    @Transactional
+    public void enablePerson(String username) {
+        Person person = findByUsername(username);
+        if (person instanceof Technician) {
+            person.setEnabled(true);
+            ((Technician) person).setTechnicianStatus(TechnicianStatus.PENDING);
+        } else
+            person.setEnabled(true);
+        repository.save(person);
     }
 }
