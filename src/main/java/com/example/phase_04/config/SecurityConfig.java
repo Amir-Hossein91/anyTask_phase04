@@ -1,7 +1,5 @@
 package com.example.phase_04.config;
 
-import com.example.phase_04.exceptions.NotFoundException;
-import com.example.phase_04.repository.PersonRepository;
 import com.example.phase_04.service.impl.PersonServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,15 +24,14 @@ public class SecurityConfig {
     private final BCryptPasswordEncoder passwordEncoder;
 
     @Bean
-    public SecurityFilterChain securityFilterChain (HttpSecurity http) throws Exception{
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .cors(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
-//                .authorizeHttpRequests(request -> request.anyRequest().permitAll());
                 .authorizeHttpRequests(request -> request.requestMatchers("/manager/**").hasRole("MANAGER")
-                .requestMatchers("/customer/**").hasAnyRole("CUSTOMER", "MANAGER")
-                .requestMatchers("/technician/**").hasAnyRole("TECHNICIAN", "MANAGER")
-                .requestMatchers("/person/**").hasAnyRole("CUSTOMER","MANAGER","TECHNICIAN"))
+                        .requestMatchers("/customer/**").hasAnyRole("CUSTOMER", "MANAGER")
+                        .requestMatchers("/technician/**").hasAnyRole("TECHNICIAN", "MANAGER")
+                        .anyRequest().permitAll())
                 .httpBasic(withDefaults());
         return http.build();
     }
