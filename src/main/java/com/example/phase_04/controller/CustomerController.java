@@ -129,7 +129,7 @@ public class CustomerController {
         switch(howToPay){
             case "credit" -> customerService.payThePriceByCredit(request.getCustomerUsername(), request.getOrderId());
             case "online" -> {
-                File htmlFile = new File("C:\\Users\\AmirHossein\\IdeaProjects\\anyTask\\phase_03\\src\\main\\resources\\static\\PaymentPage.html");
+                File htmlFile = new File("C:\\Users\\AmirHossein\\IdeaProjects\\anyTask\\phase_04\\src\\main\\resources\\static\\PaymentPage.html");
                 try {
                     Desktop.getDesktop().browse(htmlFile.toURI());
                 } catch (IOException e) {
