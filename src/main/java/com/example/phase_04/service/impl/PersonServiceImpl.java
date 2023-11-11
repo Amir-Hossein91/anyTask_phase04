@@ -196,10 +196,10 @@ public class PersonServiceImpl implements PersonService {
     public void enablePerson(String username) {
         Person person = findByUsername(username);
         if (person instanceof Technician) {
-            person.setEnabled(true);
+            person.setClickedActivationLink(true);
             ((Technician) person).setTechnicianStatus(TechnicianStatus.PENDING);
         } else
-            person.setEnabled(true);
+            person.setClickedActivationLink(true);
         repository.save(person);
     }
 }

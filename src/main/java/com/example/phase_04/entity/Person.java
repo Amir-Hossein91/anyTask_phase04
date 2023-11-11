@@ -48,7 +48,7 @@ public class Person extends BaseEntity implements UserDetails {
     private LocalDateTime registrationDate;
     @Enumerated(value = EnumType.STRING)
     private Role role;
-    private boolean enabled;
+    private boolean clickedActivationLink;
 
     public String toString() {
         return  "\tfirstName = " + this.getFirstName() +
@@ -79,8 +79,7 @@ public class Person extends BaseEntity implements UserDetails {
         return true;
     }
 
-    @Override
     public boolean isEnabled() {
-        return enabled;
+        return clickedActivationLink;
     }
 }
