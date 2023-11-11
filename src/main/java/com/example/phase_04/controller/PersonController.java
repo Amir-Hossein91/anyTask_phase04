@@ -103,10 +103,15 @@ public class PersonController {
 
     @GetMapping("verifyEmailAddress/{username}")
     public ResponseEntity<String> verifyEmailAddress(@PathVariable String username) {
-        personService.enablePerson(username);
         Person person = personService.findByUsername(username);
+
+        if(person.isClickedActivationLink())
+            return new ResponseEntity<>("Your account is already enabled", HttpStatus.BAD_REQUEST);
+
+        personService.enablePerson(username);
+
         if (person instanceof Technician) {
-            return new ResponseEntity<>("Your account is enabled successfully!\nPlease wait for manager to check your information", HttpStatus.OK);
+            return new ResponseEntity<>("Your account is enabled successfully! You are now on 'pending' status. Please wait for manager to check your information", HttpStatus.OK);
         } else
             return new ResponseEntity<>("Your account is enabled successfully!", HttpStatus.OK);
     }
