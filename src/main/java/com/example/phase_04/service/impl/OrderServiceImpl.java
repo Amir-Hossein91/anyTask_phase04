@@ -6,12 +6,21 @@ import com.example.phase_04.exceptions.NotFoundException;
 import com.example.phase_04.repository.OrderRepository;
 import com.example.phase_04.service.OrderService;
 import com.example.phase_04.utility.Constants;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -21,18 +30,24 @@ public class OrderServiceImpl implements OrderService {
     private final CustomerServiceImpl customerService;
     private final AssistanceServiceImpl assistanceService;
     private final SubAssistanceServiceImpl subAssistanceService;
+    private final TechnicianServiceImpl technicianService;
+
+    @PersistenceContext
+    private EntityManager em;
 
     public OrderServiceImpl(OrderRepository repository,
                             ManagerServiceImpl managerService,
                             @Lazy CustomerServiceImpl customerService,
                             @Lazy AssistanceServiceImpl assistanceService,
-                            @Lazy SubAssistanceServiceImpl subAssistanceService) {
+                            @Lazy SubAssistanceServiceImpl subAssistanceService,
+                            @Lazy TechnicianServiceImpl technicianService) {
         super();
         this.repository = repository;
         this.managerService = managerService;
         this.customerService = customerService;
         this.assistanceService = assistanceService;
         this.subAssistanceService = subAssistanceService;
+        this.technicianService = technicianService;
     }
 
     public List<String> showAllOrders(String managerUsername) {
@@ -131,5 +146,59 @@ public class OrderServiceImpl implements OrderService {
         return repository.findByCustomer(customer).orElseThrow(
                 () -> new NotFoundException(Constants.NO_ORDERS_FOR_CUSTOMER)
         );
+    }
+
+    @Transactional
+    public List<Order> filterOrders(long customerId,
+                               long technicianId,
+                               Optional<LocalDateTime> from,
+                               Optional<LocalDateTime> until,
+                               Optional<OrderStatus> status,
+                               Optional<String> assistanceTitle,
+                               Optional<String> subAssistanceTitle) {
+
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Order> cq = cb.createQuery(Order.class);
+        Root<Order> orderRoot = cq.from(Order.class);
+
+        List<Predicate> predicates = new ArrayList<>();
+
+
+        if(customerId != 0){
+            Customer fetchedCustomer = customerService.findById(customerId);
+            predicates.add(cb.equal(orderRoot.get("customer"),fetchedCustomer));
+        }
+
+        if(technicianId != 0){
+            Technician fetchedTechnician = technicianService.findById(technicianId);
+            predicates.add(cb.equal(orderRoot.get("technician"),fetchedTechnician));
+        }
+
+        from.map(f -> predicates.add(cb.greaterThanOrEqualTo(orderRoot.get("orderRegistrationDateAndTime"), f)));
+        until.map(u -> predicates.add(cb.lessThanOrEqualTo(orderRoot.get("orderRegistrationDateAndTime"), u)));
+        status.map(st -> predicates.add((cb.equal(orderRoot.get("orderStatus"),st))));
+
+        if(assistanceTitle.isPresent()){
+            List<Predicate> subAssistancePredicates = new ArrayList<>();
+            Assistance assistance = assistanceService.findAssistance(assistanceTitle.get());
+            List<SubAssistance> fetchedSubAssistances = subAssistanceService.findSubAssistance(assistance);
+            for(SubAssistance s: fetchedSubAssistances)
+                subAssistancePredicates.add(cb.equal(orderRoot.get("subAssistance"),s));
+
+            predicates.add(cb.or(subAssistancePredicates.toArray(new Predicate[0])));
+        }
+
+        if(subAssistanceTitle.isPresent()){
+            List<Predicate> subAssistancePredicates = new ArrayList<>();
+            List<SubAssistance> fetchedSubAssistances = subAssistanceService.findSubAssistance(subAssistanceTitle.get());
+            for(SubAssistance s: fetchedSubAssistances)
+                subAssistancePredicates.add(cb.equal(orderRoot.get("subAssistance"),s));
+
+            predicates.add(cb.or(subAssistancePredicates.toArray(new Predicate[0])));
+        }
+
+        cq.select(orderRoot).where(predicates.toArray(new Predicate[0]));
+        Query query = em.createQuery(cq);
+        return query.getResultList();
     }
 }

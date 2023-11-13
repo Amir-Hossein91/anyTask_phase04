@@ -1,25 +1,21 @@
 package com.example.phase_04.controller;
 
-import com.example.phase_04.controller.requestObjects.AssignTechnician;
-import com.example.phase_04.controller.requestObjects.ChangeBasePrice;
-import com.example.phase_04.controller.requestObjects.ChangeDescription;
-import com.example.phase_04.controller.requestObjects.Filter;
+import com.example.phase_04.controller.requestObjects.*;
 import com.example.phase_04.dto.request.AssistanceRequestDTO;
 import com.example.phase_04.dto.request.SubAssistanceRequestDTO;
 import com.example.phase_04.dto.response.*;
 import com.example.phase_04.entity.*;
+import com.example.phase_04.entity.enums.OrderStatus;
 import com.example.phase_04.entity.enums.TechnicianStatus;
 import com.example.phase_04.mapper.*;
-import com.example.phase_04.service.impl.AssistanceServiceImpl;
-import com.example.phase_04.service.impl.PersonServiceImpl;
-import com.example.phase_04.service.impl.SubAssistanceServiceImpl;
-import com.example.phase_04.service.impl.TechnicianServiceImpl;
+import com.example.phase_04.service.impl.*;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @RestController
@@ -30,15 +26,18 @@ public class ManagerController {
     private final AssistanceServiceImpl assistanceService;
     private final SubAssistanceServiceImpl subAssistanceService;
     private final TechnicianServiceImpl technicianService;
+    private final OrderServiceImpl orderService;
 
     public ManagerController(PersonServiceImpl personService,
                              AssistanceServiceImpl assistanceService,
                              SubAssistanceServiceImpl subAssistanceService,
-                             TechnicianServiceImpl technicianService) {
+                             TechnicianServiceImpl technicianService,
+                             OrderServiceImpl orderService) {
         this.personService = personService;
         this.assistanceService = assistanceService;
         this.subAssistanceService = subAssistanceService;
         this.technicianService = technicianService;
+        this.orderService = orderService;
     }
 
     @PostMapping("/addAssistance")
@@ -207,5 +206,22 @@ public class ManagerController {
         return new ResponseEntity<>(responseDTOS, HttpStatus.OK);
     }
 
+    @PostMapping("filterOrders")
+    public ResponseEntity<List<ManagerOrderReportDTO>> getOrderReport(@RequestBody ManagerOrderReportRequest request){
+        Optional<LocalDateTime> from = Optional.ofNullable(request.getFrom());
+        Optional<LocalDateTime> until = Optional.ofNullable(request.getUntil());
+        Optional<OrderStatus> status = Optional.ofNullable(request.getStatus());
+        Optional<String> assistanceTitle = Optional.ofNullable(request.getAssistanceTitle());
+        Optional<String> subAssistanceTitle = Optional.ofNullable(request.getSubAssistanceTitle());
+
+        List<Order> orders = orderService.filterOrders(request.getCustomerId(), request.getTechnicianId(), from, until, status, assistanceTitle,subAssistanceTitle);
+        List<ManagerOrderReportDTO> reportDTOS = new ArrayList<>();
+        for(Order o: orders){
+            reportDTOS.add(OrderMapper.INSTANCE.modelToReport(o));
+        }
+
+
+        return new ResponseEntity<>(reportDTOS,HttpStatus.OK);
+    }
 
 }
