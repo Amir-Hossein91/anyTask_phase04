@@ -1,6 +1,7 @@
 package com.example.phase_04.service.impl;
 
 import com.example.phase_04.entity.*;
+import com.example.phase_04.entity.Order;
 import com.example.phase_04.entity.enums.Role;
 import com.example.phase_04.entity.enums.TechnicianStatus;
 import com.example.phase_04.exceptions.NotFoundException;
@@ -15,9 +16,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalInt;
 
 @Service
 public class PersonServiceImpl implements PersonService {
@@ -120,12 +123,16 @@ public class PersonServiceImpl implements PersonService {
         return fetched;
     }
 
-    public List<Person> filter(Optional<String> roll,
+    public List<Person> filter(Optional<String> role,
                                Optional<String> firstName,
                                Optional<String> lastname,
                                Optional<String> email,
                                long subAssistanceId,
-                               Optional<String> maxMin) {
+                               Optional<String> maxMin,
+                               Optional<LocalDateTime> from,
+                               Optional<LocalDateTime> until,
+                               Optional<Integer> minOrders,
+                               Optional<Integer> maxOrders) {
 
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Person> cq = cb.createQuery(Person.class);
@@ -163,13 +170,17 @@ public class PersonServiceImpl implements PersonService {
                 finalPredicates.add(cb.equal(personRoot.get("score"), subquery));
             }
         }
+        from.map(f -> finalPredicates.add(cb.greaterThanOrEqualTo(personRoot.get("registrationDate"),f)));
+        until.map(u -> finalPredicates.add(cb.lessThanOrEqualTo(personRoot.get("registrationDate"),u)));
+        minOrders.map(min -> finalPredicates.add(cb.greaterThanOrEqualTo(personRoot.get("orderCount"),min)));
+        maxOrders.map(max -> finalPredicates.add(cb.lessThanOrEqualTo(personRoot.get("orderCount"),max)));
 
         cq.select(personRoot).where(finalPredicates.toArray(new Predicate[0]));
         TypedQuery typedQuery = em.createQuery(cq);
         List<Person> result = typedQuery.getResultList();
 
-        if (!roll.isEmpty()) {
-            String r = roll.get();
+        if (!role.isEmpty()) {
+            String r = role.get();
             if (r.equals("customer")) {
                 for (int i = 0; i < result.size(); i++) {
                     Person person = result.get(i);

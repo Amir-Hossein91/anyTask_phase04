@@ -173,14 +173,14 @@ public class ManagerController {
 
     @PostMapping("/filter")
     @Transactional
-    public ResponseEntity<List<PersonResponseDTO>> filter(@RequestBody Filter request) {
+    public ResponseEntity<List<PersonResponseDTO>> filter(@RequestBody @Valid Filter request) {
         if (request.getMaxMin() != null && !(request.getMaxMin().equals("max") || request.getMaxMin().equals("min")))
             throw new IllegalArgumentException("'maxMin' field can only be 'max' or 'min'");
 
-        if (request.getRoll() != null && !(request.getRoll().equals("technician") || request.getRoll().equals("customer")))
+        if (request.getRole() != null && !(request.getRole().equals("technician") || request.getRole().equals("customer")))
             throw new IllegalArgumentException("'roll' field can only be 'technician' or 'customer'");
 
-        Optional<String> roll = Optional.ofNullable(request.getRoll());
+        Optional<String> role = Optional.ofNullable(request.getRole());
         Optional<String> firstName = Optional.ofNullable(request.getFirstName());
         Optional<String> lastname = Optional.ofNullable(request.getLastname());
         Optional<String> email = Optional.ofNullable(request.getEmail());
@@ -196,8 +196,12 @@ public class ManagerController {
             }
         }
         Optional<String> maxMin = Optional.ofNullable(request.getMaxMin());
+        Optional<LocalDateTime> registeredFrom = Optional.ofNullable(request.getRegisteredFrom());
+        Optional<LocalDateTime> registeredUntil = Optional.ofNullable(request.getRegisteredUntil());
+        Optional<Integer> minOrders = Optional.ofNullable(request.getMinOrders());
+        Optional<Integer> maxOrders = Optional.ofNullable(request.getMaxOrders());
 
-        List<Person> result = personService.filter(roll, firstName, lastname, email, subAssistanceId, maxMin);
+        List<Person> result = personService.filter(role, firstName, lastname, email, subAssistanceId, maxMin,registeredFrom,registeredUntil,minOrders,maxOrders);
         List<PersonResponseDTO> responseDTOS = new ArrayList<>();
 
         for (Person p : result)
