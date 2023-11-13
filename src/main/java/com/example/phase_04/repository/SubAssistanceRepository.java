@@ -14,4 +14,8 @@ public interface SubAssistanceRepository extends JpaRepository<SubAssistance,Lon
     Optional<SubAssistance> findByTitleAndAssistance (String title, Assistance assistance);
 
     Optional<List<SubAssistance>> findByTechniciansContaining(Technician technician);
+
+    Optional<List<SubAssistance>> findByTitle(String title);
+
+    Optional<List<SubAssistance>> findByAssistance(Assistance assistance);
 }
