@@ -211,7 +211,7 @@ public class CustomerServiceImpl implements CustomerService {
 
         order.setOrderStatus(OrderStatus.FINISHED);
         Technician technician = order.getTechnician();
-        technician.setNumberOfFinishedTasks(technician.getNumberOfFinishedTasks() + 1);
+        technician.setOrderCount(technician.getOrderCount() + 1);
         order.setFinishedTime(LocalDateTime.now());
 
         TechnicianSuggestion chosenSuggestion = order.getChosenTechnicianSuggestion();
