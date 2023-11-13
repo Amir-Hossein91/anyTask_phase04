@@ -49,6 +49,7 @@ public class Person extends BaseEntity implements UserDetails {
     @Enumerated(value = EnumType.STRING)
     private Role role;
     private boolean clickedActivationLink;
+    private int orderCount;
 
     public String toString() {
         return  "\tfirstName = " + this.getFirstName() +
@@ -80,6 +81,6 @@ public class Person extends BaseEntity implements UserDetails {
     }
 
     public boolean isEnabled() {
-        return clickedActivationLink;
+        return true;
     }
 }

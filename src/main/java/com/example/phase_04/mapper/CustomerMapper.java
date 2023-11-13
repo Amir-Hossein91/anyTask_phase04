@@ -4,6 +4,7 @@ import com.example.phase_04.dto.request.CustomerRequestDTO;
 import com.example.phase_04.dto.response.CustomerResponseDTO;
 import com.example.phase_04.entity.Customer;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 import org.springframework.stereotype.Component;
 
@@ -15,5 +16,6 @@ public interface CustomerMapper {
 
     Customer dtoToModel (CustomerRequestDTO requestDTO);
 
+    @Mapping(target = "numberOfOrders" , source = "customer.orderCount")
     CustomerResponseDTO modelToDto (Customer customer);
 }

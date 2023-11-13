@@ -17,5 +17,6 @@ public interface TechnicianMapper {
     Technician dtoToModel(TechnicianRequestDTO requestDTO);
 
     @Mapping(target = "isActive", source = "technician.active")
+    @Mapping(target = "numberOfFinishedTasks", source = "technician.orderCount")
     TechnicianResponseDTO modelToDto (Technician technician);
 }

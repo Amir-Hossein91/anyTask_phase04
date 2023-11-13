@@ -7,5 +7,6 @@ public record CustomerResponseDTO(long id,
                                   String lastName,
                                   String email,
                                   String username,
-                                  LocalDateTime registrationDate) {
+                                  LocalDateTime registrationDate,
+                                  int numberOfOrders) {
 }
