@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @CrossOrigin("*")
@@ -164,5 +165,15 @@ public class CustomerController {
                 request.getScore(), request.getOpinion());
 
         return new ResponseEntity<>("Your score and opinion saved successfully",HttpStatus.OK);
+    }
+
+    @PostMapping("/filterOrders")
+    public ResponseEntity<List<OrderResponseDTO>> filterOrders (@RequestBody CustomerOrTechnicianFilterOrders request){
+        Optional<OrderStatus> orderStatus = Optional.ofNullable(request.getOrderStatus());
+        List<Order> orders = orderService.customerOrTechnicianFilterOrders(orderStatus);
+        List<OrderResponseDTO> orderDTOs = new ArrayList<>();
+        for(Order o : orders)
+            orderDTOs.add(OrderMapper.INSTANCE.modelToDto(o));
+        return new ResponseEntity<>(orderDTOs,HttpStatus.OK);
     }
 }

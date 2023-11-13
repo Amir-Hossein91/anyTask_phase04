@@ -1,5 +1,6 @@
 package com.example.phase_04.controller;
 
+import com.example.phase_04.controller.requestObjects.CustomerOrTechnicianFilterOrders;
 import com.example.phase_04.controller.requestObjects.SeeScore;
 import com.example.phase_04.dto.request.TechnicianSuggestionRequestDTO;
 import com.example.phase_04.dto.response.OrderResponseDTO;
@@ -8,6 +9,7 @@ import com.example.phase_04.dto.response.TechnicianSuggestionResponseDTO;
 import com.example.phase_04.entity.Order;
 import com.example.phase_04.entity.SubAssistance;
 import com.example.phase_04.entity.TechnicianSuggestion;
+import com.example.phase_04.entity.enums.OrderStatus;
 import com.example.phase_04.mapper.OrderMapper;
 import com.example.phase_04.mapper.SubAssistanceMapper;
 import com.example.phase_04.mapper.TechnicianSuggestionMapper;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/technician")
@@ -81,5 +84,15 @@ public class TechnicianController {
     public ResponseEntity<String> seeScore (@RequestBody SeeScore request){
         int score = technicianService.seeTechnicianScore(request.getTechnicianUsername(), request.getOrderId());
         return new ResponseEntity<>("Technician score: " + score , HttpStatus.OK);
+    }
+
+    @PostMapping("/filterOrders")
+    public ResponseEntity<List<OrderResponseDTO>> filterOrders (@RequestBody CustomerOrTechnicianFilterOrders request){
+        Optional<OrderStatus> orderStatus = Optional.ofNullable(request.getOrderStatus());
+        List<Order> orders = orderService.customerOrTechnicianFilterOrders(orderStatus);
+        List<OrderResponseDTO> orderDTOs = new ArrayList<>();
+        for(Order o : orders)
+            orderDTOs.add(OrderMapper.INSTANCE.modelToDto(o));
+        return new ResponseEntity<>(orderDTOs,HttpStatus.OK);
     }
 }

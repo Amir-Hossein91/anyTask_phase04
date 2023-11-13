@@ -218,7 +218,7 @@ public class ManagerController {
         Optional<String> assistanceTitle = Optional.ofNullable(request.getAssistanceTitle());
         Optional<String> subAssistanceTitle = Optional.ofNullable(request.getSubAssistanceTitle());
 
-        List<Order> orders = orderService.filterOrders(request.getCustomerId(), request.getTechnicianId(), from, until, status, assistanceTitle,subAssistanceTitle);
+        List<Order> orders = orderService.managerFilterOrders(request.getCustomerId(), request.getTechnicianId(), from, until, status, assistanceTitle,subAssistanceTitle);
         List<ManagerOrderReportDTO> reportDTOS = new ArrayList<>();
         for(Order o: orders){
             reportDTOS.add(OrderMapper.INSTANCE.modelToReport(o));

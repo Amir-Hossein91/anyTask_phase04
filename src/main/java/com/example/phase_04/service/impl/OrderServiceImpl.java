@@ -14,6 +14,7 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +32,7 @@ public class OrderServiceImpl implements OrderService {
     private final AssistanceServiceImpl assistanceService;
     private final SubAssistanceServiceImpl subAssistanceService;
     private final TechnicianServiceImpl technicianService;
+    private final PersonServiceImpl personService;
 
     @PersistenceContext
     private EntityManager em;
@@ -40,7 +42,8 @@ public class OrderServiceImpl implements OrderService {
                             @Lazy CustomerServiceImpl customerService,
                             @Lazy AssistanceServiceImpl assistanceService,
                             @Lazy SubAssistanceServiceImpl subAssistanceService,
-                            @Lazy TechnicianServiceImpl technicianService) {
+                            @Lazy TechnicianServiceImpl technicianService,
+                            @Lazy PersonServiceImpl personService) {
         super();
         this.repository = repository;
         this.managerService = managerService;
@@ -48,6 +51,7 @@ public class OrderServiceImpl implements OrderService {
         this.assistanceService = assistanceService;
         this.subAssistanceService = subAssistanceService;
         this.technicianService = technicianService;
+        this.personService = personService;
     }
 
     public List<String> showAllOrders(String managerUsername) {
@@ -157,13 +161,13 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Transactional
-    public List<Order> filterOrders(long customerId,
-                               long technicianId,
-                               Optional<LocalDateTime> from,
-                               Optional<LocalDateTime> until,
-                               Optional<OrderStatus> status,
-                               Optional<String> assistanceTitle,
-                               Optional<String> subAssistanceTitle) {
+    public List<Order> managerFilterOrders(long customerId,
+                                           long technicianId,
+                                           Optional<LocalDateTime> from,
+                                           Optional<LocalDateTime> until,
+                                           Optional<OrderStatus> status,
+                                           Optional<String> assistanceTitle,
+                                           Optional<String> subAssistanceTitle) {
 
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Order> cq = cb.createQuery(Order.class);
@@ -204,6 +208,28 @@ public class OrderServiceImpl implements OrderService {
 
             predicates.add(cb.or(subAssistancePredicates.toArray(new Predicate[0])));
         }
+
+        cq.select(orderRoot).where(predicates.toArray(new Predicate[0]));
+        Query query = em.createQuery(cq);
+        return query.getResultList();
+    }
+
+    @Transactional
+    public List<Order> customerOrTechnicianFilterOrders(Optional<OrderStatus> orderStatus) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Person person = personService.findByUsername(username);
+
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Order> cq = cb.createQuery(Order.class);
+        Root<Order> orderRoot = cq.from(Order.class);
+        List<Predicate> predicates = new ArrayList<>();
+
+        if(person instanceof Customer)
+            predicates.add(cb.equal(orderRoot.get("customer"),person));
+        else
+            predicates.add(cb.equal(orderRoot.get("technician"),person));
+
+        orderStatus.map(o -> predicates.add(cb.equal(orderRoot.get("orderStatus"),o)));
 
         cq.select(orderRoot).where(predicates.toArray(new Predicate[0]));
         Query query = em.createQuery(cq);
