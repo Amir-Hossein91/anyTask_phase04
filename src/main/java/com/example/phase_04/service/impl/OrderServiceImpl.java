@@ -76,12 +76,20 @@ public class OrderServiceImpl implements OrderService {
         if (orderDescription.getCustomerDesiredDateAndTime().isBefore(LocalDateTime.now()))
             throw new IllegalArgumentException(Constants.DATE_BEFORE_NOW);
 
-        Order order = Order.builder().subAssistance(subAssistance).customer(customer)
-                .orderRegistrationDateAndTime(LocalDateTime.now()).orderDescription(orderDescription)
+        Order order = Order.builder()
+                .subAssistance(subAssistance)
+                .customer(customer)
+                .orderRegistrationDateAndTime(LocalDateTime.now())
+                .orderDescription(orderDescription)
                 .orderStatus(OrderStatus.WAITING_FOR_TECHNICIANS_SUGGESTIONS)
-                .technicianScore(1).build();
+                .technicianScore(1)
+                .build();
 
         order = saveOrUpdate(order);
+
+        customer.setOrderCount(customer.getOrderCount() + 1);
+        customerService.saveOrUpdate(customer);
+
         return order;
     }
 
