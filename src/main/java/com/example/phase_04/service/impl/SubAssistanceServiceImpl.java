@@ -57,6 +57,14 @@ public class SubAssistanceServiceImpl implements SubAssistanceService {
         return repository.findByTitleAndAssistance(title, assistance).orElse(null);
     }
 
+    public List<SubAssistance> findSubAssistance(String title){
+        return repository.findByTitle(title).orElseThrow(()-> new NotFoundException("No subAssistance found"));
+    }
+
+    public List<SubAssistance> findSubAssistance(Assistance assistance){
+        return repository.findByAssistance(assistance).orElseThrow(()-> new NotFoundException("No subAssistance"));
+    }
+
     @Override
     public List<SubAssistance> findByTechniciansContaining(Technician technician) {
         return repository.findByTechniciansContaining(technician).orElse(List.of());
