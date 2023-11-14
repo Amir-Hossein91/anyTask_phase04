@@ -8,6 +8,7 @@ import com.example.phase_04.exceptions.NotFoundException;
 import com.example.phase_04.repository.TechnicianRepository;
 import com.example.phase_04.service.TechnicianService;
 import com.example.phase_04.utility.Constants;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -193,5 +194,12 @@ public class TechnicianServiceImpl implements TechnicianService {
             throw new IllegalStateException("Technician has not been scored on this order yet");
 
         return order.getTechnicianScore();
+    }
+
+    public String reportCredit() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Technician technician = findByUsername(username);
+        long credit = technician.getCredit();
+        return "Your account credit is " + credit + " T";
     }
 }

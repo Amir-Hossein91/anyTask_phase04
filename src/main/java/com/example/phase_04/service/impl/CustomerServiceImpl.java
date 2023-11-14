@@ -343,6 +343,6 @@ public class CustomerServiceImpl implements CustomerService {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Customer customer = findByUsername(username);
         long credit = customer.getCredit();
-        return "Your account credit is " + credit + " Tomans";
+        return "Your account credit is " + credit + " T";
     }
 }

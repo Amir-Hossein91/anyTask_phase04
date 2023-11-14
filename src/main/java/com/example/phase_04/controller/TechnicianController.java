@@ -95,4 +95,10 @@ public class TechnicianController {
             orderDTOs.add(OrderMapper.INSTANCE.modelToDto(o));
         return new ResponseEntity<>(orderDTOs,HttpStatus.OK);
     }
+
+    @GetMapping("/seeCredit")
+    public ResponseEntity<String> seeCredit (){
+        String creditReport = technicianService.reportCredit();
+        return new ResponseEntity<>(creditReport,HttpStatus.OK);
+    }
 }
