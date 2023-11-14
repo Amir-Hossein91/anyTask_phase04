@@ -81,6 +81,6 @@ public class Person extends BaseEntity implements UserDetails {
     }
 
     public boolean isEnabled() {
-        return true;
+        return clickedActivationLink;
     }
 }
