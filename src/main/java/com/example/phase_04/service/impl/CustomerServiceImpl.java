@@ -7,6 +7,7 @@ import com.example.phase_04.exceptions.NotFoundException;
 import com.example.phase_04.repository.CustomerRepository;
 import com.example.phase_04.service.CustomerService;
 import com.example.phase_04.utility.Constants;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -336,5 +337,12 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public Customer findByUsername(String customerUsername) {
         return repository.findByUsername(customerUsername).orElse(null);
+    }
+
+    public String reportCredit() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Customer customer = findByUsername(username);
+        long credit = customer.getCredit();
+        return "Your account credit is " + credit + " Tomans";
     }
 }

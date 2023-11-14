@@ -176,4 +176,10 @@ public class CustomerController {
             orderDTOs.add(OrderMapper.INSTANCE.modelToDto(o));
         return new ResponseEntity<>(orderDTOs,HttpStatus.OK);
     }
+
+    @GetMapping("/seeCredit")
+    public ResponseEntity<String> seeCredit (){
+        String creditReport = customerService.reportCredit();
+        return new ResponseEntity<>(creditReport,HttpStatus.OK);
+    }
 }
