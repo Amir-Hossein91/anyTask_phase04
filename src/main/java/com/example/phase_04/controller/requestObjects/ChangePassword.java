@@ -5,7 +5,6 @@ import lombok.Getter;
 
 @Getter
 public class ChangePassword {
-    private String username;
     private String currentPassword;
     @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*\\d)[a-zA-Z\\d]{8,}$", message = "Password must be at least " +
             "8 characters containing digits and letters")

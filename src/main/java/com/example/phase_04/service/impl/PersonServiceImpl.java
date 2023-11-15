@@ -1,7 +1,6 @@
 package com.example.phase_04.service.impl;
 
 import com.example.phase_04.entity.*;
-import com.example.phase_04.entity.Order;
 import com.example.phase_04.entity.enums.Role;
 import com.example.phase_04.entity.enums.TechnicianStatus;
 import com.example.phase_04.exceptions.NotFoundException;
@@ -12,6 +11,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.*;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +20,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.OptionalInt;
 
 @Service
 public class PersonServiceImpl implements PersonService {
@@ -52,12 +51,13 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Transactional
-    public void changePassword(String username, String oldPassword, String newPassword) {
+    public void changePassword(String oldPassword, String newPassword) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Person fetched = findByUsername(username);
         if (fetched != null) {
-            if (!fetched.getPassword().equals(oldPassword))
+            if (!passwordEncoder.matches(oldPassword, fetched.getPassword()))
                 throw new IllegalArgumentException(Constants.INCORRECT_PASSWORD);
-            fetched.setPassword(newPassword);
+            fetched.setPassword(passwordEncoder.encode(newPassword));
             saveOrUpdate(fetched);
         }
     }
@@ -146,6 +146,11 @@ public class PersonServiceImpl implements PersonService {
         firstName.map(fn -> finalPredicates.add(cb.like(personRoot.get("firstName"), "%" + fn + "%")));
         lastname.map(ln -> finalPredicates.add(cb.like(personRoot.get("lastName"), "%" + ln + "%")));
         email.map(e -> finalPredicates.add(cb.like(personRoot.get("email"), "%" + e + "%")));
+        from.map(f -> finalPredicates.add(cb.greaterThanOrEqualTo(personRoot.get("registrationDate"),f)));
+        until.map(u -> finalPredicates.add(cb.lessThanOrEqualTo(personRoot.get("registrationDate"),u)));
+        minOrders.map(min -> finalPredicates.add(cb.greaterThanOrEqualTo(personRoot.get("orderCount"),min)));
+        maxOrders.map(max -> finalPredicates.add(cb.lessThanOrEqualTo(personRoot.get("orderCount"),max)));
+
         if (subAssistanceId != 0) {
             SubAssistance subAssistance = subAssistanceService.findById(subAssistanceId);
             List<Technician> technicians = subAssistance.getTechnicians();
@@ -170,10 +175,6 @@ public class PersonServiceImpl implements PersonService {
                 finalPredicates.add(cb.equal(personRoot.get("score"), subquery));
             }
         }
-        from.map(f -> finalPredicates.add(cb.greaterThanOrEqualTo(personRoot.get("registrationDate"),f)));
-        until.map(u -> finalPredicates.add(cb.lessThanOrEqualTo(personRoot.get("registrationDate"),u)));
-        minOrders.map(min -> finalPredicates.add(cb.greaterThanOrEqualTo(personRoot.get("orderCount"),min)));
-        maxOrders.map(max -> finalPredicates.add(cb.lessThanOrEqualTo(personRoot.get("orderCount"),max)));
 
         cq.select(personRoot).where(finalPredicates.toArray(new Predicate[0]));
         TypedQuery typedQuery = em.createQuery(cq);

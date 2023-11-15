@@ -96,7 +96,7 @@ public class PersonController {
 
     @PostMapping("/changePassword")
     public ResponseEntity<String> changePassword(@RequestBody @Valid ChangePassword request) {
-        personService.changePassword(request.getUsername(), request.getCurrentPassword(), request.getNewPassword());
+        personService.changePassword(request.getCurrentPassword(), request.getNewPassword());
 
         return new ResponseEntity<>("Password changed successfully!", HttpStatus.CREATED);
     }
