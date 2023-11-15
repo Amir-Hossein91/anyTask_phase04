@@ -4,7 +4,6 @@ import lombok.Getter;
 
 @Getter
 public class ChooseSuggestion {
-    private String customerUsername;
     private long orderId;
     private long suggestionId;
 }

@@ -62,8 +62,10 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Transactional
-    public Order makeOrder(String customerUsername, String subAssistanceTitle, String assistanceTitle, OrderDescription orderDescription) {
-        Customer customer = customerService.findByUsername(customerUsername);
+    public Order makeOrder(String subAssistanceTitle, String assistanceTitle, OrderDescription orderDescription) {
+
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Customer customer = customerService.findByUsername(username);
         if (customer == null)
             throw new IllegalArgumentException("Only a customer can make an order");
         Assistance assistance = assistanceService.findAssistance(assistanceTitle);
@@ -87,6 +89,7 @@ public class OrderServiceImpl implements OrderService {
                 .orderDescription(orderDescription)
                 .orderStatus(OrderStatus.WAITING_FOR_TECHNICIANS_SUGGESTIONS)
                 .technicianScore(1)
+                .isTechnicianScored(false)
                 .build();
 
         order = saveOrUpdate(order);

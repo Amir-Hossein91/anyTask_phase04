@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 
 public record OrderRequestDTO(String subAssistanceTitle,
                               String assistanceTitle,
-                              String customerUsername,
                               long customerSuggestedPrice,
                               @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss")
                               LocalDateTime customerDesiredDateAndTime,

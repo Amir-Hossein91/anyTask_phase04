@@ -48,9 +48,9 @@ public class CustomerController {
         this.orderService = orderService;
     }
 
-    @GetMapping("/seeSubAssistance/{username}")
-    public ResponseEntity<List<SubAssistanceResponseDTO>> seeSubAssistances(@PathVariable String username){
-        List<SubAssistance> subAssistances = subAssistanceService.showSubAssistancesToOthers(username);
+    @GetMapping("/seeSubAssistance")
+    public ResponseEntity<List<SubAssistanceResponseDTO>> seeSubAssistances(){
+        List<SubAssistance> subAssistances = subAssistanceService.showSubAssistancesToOthers();
         List<SubAssistanceResponseDTO> responseDTOS = new ArrayList<>();
 
         for(SubAssistance s: subAssistances)
@@ -63,29 +63,21 @@ public class CustomerController {
     public ResponseEntity<OrderResponseDTO> makeOrder (@RequestBody @Valid OrderRequestDTO requestDTO) {
 
         Order order = OrderMapper.INSTANCE.dtoToModel(requestDTO);
-        order.setTechnicianScore(1);
-        order.setTechnicianScored(false);
-        order.setSubAssistance(subAssistanceService.findSubAssistance(requestDTO.subAssistanceTitle(), assistanceService.findAssistance(requestDTO.assistanceTitle())));
-        order.setCustomer(customerService.findByUsername(requestDTO.customerUsername()));
-        order.setOrderRegistrationDateAndTime(LocalDateTime.now());
-        order.setOrderStatus(OrderStatus.WAITING_FOR_TECHNICIANS_SUGGESTIONS);
-
-        order = orderService.makeOrder(order.getCustomer().getUsername(),order.getSubAssistance().getTitle()
-                    ,order.getSubAssistance().getAssistance().getTitle(),order.getOrderDescription());
+        order = orderService.makeOrder(requestDTO.subAssistanceTitle(),
+                    requestDTO.assistanceTitle(),order.getOrderDescription());
 
         return new ResponseEntity<>(OrderMapper.INSTANCE.modelToDto(order),HttpStatus.CREATED);
     }
 
     @PostMapping("/seeSuggestions")
     public ResponseEntity<List<TechnicianSuggestionResponseDTO>> seeSuggestions (@RequestBody SeeSuggestions request){
-        String username = request.getCustomerUsername();
         long orderId = request.getOrderId();
         String orderingBy = request.getOrderingBy();
 
         List<TechnicianSuggestion> suggestions;
         switch (orderingBy){
-            case "price" -> suggestions = customerService.seeTechnicianSuggestionsOrderedByPrice(username,orderId);
-            case "score" -> suggestions = customerService.seeTechnicianSuggestionsOrderedByScore(username,orderId);
+            case "price" -> suggestions = customerService.seeTechnicianSuggestionsOrderedByPrice(orderId);
+            case "score" -> suggestions = customerService.seeTechnicianSuggestionsOrderedByScore(orderId);
             default -> throw new IllegalArgumentException("The 'orderingBy' field can either be 'price' or 'score'");
         }
         List<TechnicianSuggestionResponseDTO> responseDTOS = new ArrayList<>();
@@ -98,19 +90,18 @@ public class CustomerController {
 
     @PostMapping("/chooseSuggestion")
     public ResponseEntity<TechnicianSuggestionResponseDTO> chooseSuggestion(@RequestBody ChooseSuggestion request){
-        String customerUsername = request.getCustomerUsername();
         long orderId = request.getOrderId();
         long suggestionId = request.getSuggestionId();
 
         return new ResponseEntity<>(TechnicianSuggestionMapper.INSTANCE
-                .modelToDto(customerService.chooseSuggestion(customerUsername,orderId,suggestionId)),
+                .modelToDto(customerService.chooseSuggestion(orderId,suggestionId)),
                 HttpStatus.CREATED);
     }
 
     @PostMapping("/markAsStarted")
     public ResponseEntity<String> markAsStarted (@RequestBody MarkAsStartedOrFinished request){
 
-        customerService.markOrderAsStarted(request.getCustomerUsername(), request.getOrderId());
+        customerService.markOrderAsStarted(request.getOrderId());
         Order order = orderService.findById(request.getOrderId());
         return new ResponseEntity<>("Technician started its job at " + order.getStartedTime(),HttpStatus.CREATED);
     }
@@ -118,7 +109,7 @@ public class CustomerController {
     @PostMapping("/markAsFinished")
     public ResponseEntity<String> markAsFinished (@RequestBody MarkAsStartedOrFinished request){
 
-        customerService.markOrderAsFinished(request.getCustomerUsername(), request.getOrderId());
+        customerService.markOrderAsFinished(request.getOrderId());
         Order order = orderService.findById(request.getOrderId());
         return new ResponseEntity<>("Technician finished its job at " + order.getFinishedTime(),HttpStatus.CREATED);
     }
@@ -128,7 +119,7 @@ public class CustomerController {
 
         String howToPay = request.getHowToPay();
         switch(howToPay){
-            case "credit" -> customerService.payThePriceByCredit(request.getCustomerUsername(), request.getOrderId());
+            case "credit" -> customerService.payThePriceByCredit(request.getOrderId());
             case "online" -> {
                 File htmlFile = new File("C:\\Users\\AmirHossein\\IdeaProjects\\anyTask\\phase_04\\src\\main\\resources\\static\\PaymentPage.html");
                 try {
@@ -148,7 +139,7 @@ public class CustomerController {
         if(!checkedCaptcha.equalsIgnoreCase(requestDTO.captchaValue()))
             throw new IllegalArgumentException("Wrong captcha value");
 
-        customerService.payThePriceOnline(requestDTO.customerUsername(), requestDTO.orderId());
+        customerService.payThePriceOnline(requestDTO.orderId());
         return new ResponseEntity<>("Payment successful",HttpStatus.OK);
     }
 
@@ -161,7 +152,7 @@ public class CustomerController {
 
     @PostMapping("/score")
     public ResponseEntity<String> scoreTechnician (@RequestBody @Valid ScoreTheTechnician request){
-        customerService.scoreTheTechnician(request.getCustomerUsername(), request.getOrderId(),
+        customerService.scoreTheTechnician(request.getOrderId(),
                 request.getScore(), request.getOpinion());
 
         return new ResponseEntity<>("Your score and opinion saved successfully",HttpStatus.OK);

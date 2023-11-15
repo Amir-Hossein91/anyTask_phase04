@@ -61,8 +61,9 @@ public class CustomerServiceImpl implements CustomerService {
         return true;
     }
 
-    public List<TechnicianSuggestion> seeTechnicianSuggestionsOrderedByPrice(String customerUsername, long orderId) {
-        Customer customer = findByUsername(customerUsername);
+    public List<TechnicianSuggestion> seeTechnicianSuggestionsOrderedByPrice(long orderId) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Customer customer = findByUsername(username);
         if (customer == null)
             throw new IllegalArgumentException("Only customers have access to this function");
 
@@ -82,8 +83,9 @@ public class CustomerServiceImpl implements CustomerService {
 
     }
 
-    public List<TechnicianSuggestion> seeTechnicianSuggestionsOrderedByScore(String customerUsername, long orderId) {
-        Customer customer = findByUsername(customerUsername);
+    public List<TechnicianSuggestion> seeTechnicianSuggestionsOrderedByScore(long orderId) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Customer customer = findByUsername(username);
         if (customer == null)
             throw new IllegalArgumentException("Only customers have access to this function");
 
@@ -103,8 +105,9 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Transactional
-    public TechnicianSuggestion chooseSuggestion(String customerUsername, long orderId, long suggestionId) {
-        Customer customer = findByUsername(customerUsername);
+    public TechnicianSuggestion chooseSuggestion(long orderId, long suggestionId) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Customer customer = findByUsername(username);
         if (customer == null)
             throw new IllegalArgumentException("Only customers have access to this function");
 
@@ -137,8 +140,9 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Transactional
-    public void markOrderAsStarted(String customerUsername, long orderId) {
-        Customer customer = findByUsername(customerUsername);
+    public void markOrderAsStarted(long orderId) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Customer customer = findByUsername(username);
         if (customer == null)
             throw new IllegalArgumentException("Only customers have access to this function");
         Order order = orderService.findById(orderId);
@@ -180,8 +184,9 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Transactional
-    public void markOrderAsFinished(String customerUsername, long orderId) {
-        Customer customer = findByUsername(customerUsername);
+    public void markOrderAsFinished(long orderId) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Customer customer = findByUsername(username);
         if (customer == null)
             throw new IllegalArgumentException("Only customers have access to this function");
         Order order = orderService.findById(orderId);
@@ -232,8 +237,9 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Transactional
-    public void payThePriceByCredit(String customerUsername, long orderId) {
-        Customer customer = findByUsername(customerUsername);
+    public void payThePriceByCredit(long orderId) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Customer customer = findByUsername(username);
         if (customer == null)
             throw new IllegalArgumentException("Paying the price is an act of 'customer'");
         Order order = orderService.findById(orderId);
@@ -261,8 +267,9 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Transactional
-    public void payThePriceOnline(String customerUsername, long orderId) {
-        Customer customer = findByUsername(customerUsername);
+    public void payThePriceOnline(long orderId) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Customer customer = findByUsername(username);
         if (customer == null)
             throw new IllegalArgumentException("Paying the price is an act of 'customer'");
         Order order = orderService.findById(orderId);
@@ -285,8 +292,9 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Transactional
-    public void scoreTheTechnician(String customerUsername, long orderId, int score, String opinion) {
-        Customer customer = findByUsername(customerUsername);
+    public void scoreTheTechnician(long orderId, int score, String opinion) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Customer customer = findByUsername(username);
         if (customer == null)
             throw new IllegalArgumentException("Scoring the 'technician' is an act of 'customer'");
         Order order = orderService.findById(orderId);

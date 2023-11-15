@@ -9,6 +9,7 @@ import com.example.phase_04.repository.SubAssistanceRepository;
 import com.example.phase_04.service.SubAssistanceService;
 import com.example.phase_04.utility.Constants;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -92,8 +93,9 @@ public class SubAssistanceServiceImpl implements SubAssistanceService {
     }
 
     @Transactional
-    public List<SubAssistance> showSubAssistancesToOthers(String userName) {
-        Person person = personService.findByUsername(userName);
+    public List<SubAssistance> showSubAssistancesToOthers() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Person person = personService.findByUsername(username);
 
         if (person instanceof Technician && !((Technician) person).isActive())
             throw new DeactivatedTechnicianException(Constants.DEACTIVATED_TECHNICIAN);
