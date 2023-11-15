@@ -33,6 +33,7 @@ public class SecurityConfig {
                         .requestMatchers("/customer/onlinePayment").permitAll()
                         .requestMatchers("/customer/**").hasAnyRole("CUSTOMER", "MANAGER")
                         .requestMatchers("/technician/**").hasAnyRole("TECHNICIAN", "MANAGER")
+                        .requestMatchers("/person/changePassword").hasAnyRole("TECHNICIAN", "MANAGER", "CUSTOMER")
                         .anyRequest().permitAll())
                 .httpBasic(withDefaults());
         return http.build();
