@@ -148,8 +148,9 @@ public class TechnicianServiceImpl implements TechnicianService {
         return technicians;
     }
 
-    public List<Order> findRelatedOrders(String technicianUsername) {
-        Technician technician = findByUsername(technicianUsername);
+    public List<Order> findRelatedOrders() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Technician technician = findByUsername(username);
         if (technician == null)
             throw new IllegalArgumentException("Only technicians can see their relative orders");
 
@@ -160,13 +161,16 @@ public class TechnicianServiceImpl implements TechnicianService {
     }
 
     @Transactional
-    public void sendTechnicianSuggestion(String technicianUsername, long orderId, TechnicianSuggestion technicianSuggestion) {
-        Technician technician = findByUsername(technicianUsername);
+    public void sendTechnicianSuggestion(long orderId, TechnicianSuggestion technicianSuggestion) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Technician technician = findByUsername(username);
         if (technician == null)
             throw new IllegalArgumentException("Only technicians can send suggestions to an order");
 
         if (!technician.isActive())
             throw new DeactivatedTechnicianException(Constants.DEACTIVATED_TECHNICIAN);
+
+        technicianSuggestion.setTechnician(technician);
 
         Order order = orderService.findById(orderId);
         if (order == null)
@@ -175,7 +179,8 @@ public class TechnicianServiceImpl implements TechnicianService {
         orderService.sendTechnicianSuggestion(technician, order, technicianSuggestion);
     }
 
-    public int seeTechnicianScore (String username, long orderId){
+    public int seeTechnicianScore (long orderId){
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Technician technician = findByUsername(username);
         if (technician == null)
             throw new IllegalArgumentException("No technician has been registered with this username");

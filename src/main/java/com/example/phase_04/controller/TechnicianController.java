@@ -43,10 +43,10 @@ public class TechnicianController {
         this.subAssistanceService = subAssistanceService;
     }
 
-    @GetMapping("/relatedOrders/{username}")
+    @GetMapping("/relatedOrders")
     @Transactional
-    public ResponseEntity<List<OrderResponseDTO>> seeRelatedOrders (@PathVariable String username){
-        List<Order> relatedOrders = technicianService.findRelatedOrders(username);
+    public ResponseEntity<List<OrderResponseDTO>> seeRelatedOrders (){
+        List<Order> relatedOrders = technicianService.findRelatedOrders();
         List<OrderResponseDTO> responseDTOS = new ArrayList<>();
 
         for(Order o : relatedOrders)
@@ -59,18 +59,17 @@ public class TechnicianController {
     public ResponseEntity<TechnicianSuggestionResponseDTO> sendTechnicianSuggestion (@RequestBody @Valid
                                                                                      TechnicianSuggestionRequestDTO requestDTO){
         TechnicianSuggestion technicianSuggestion = TechnicianSuggestionMapper.INSTANCE.dtoToModel(requestDTO);
-        technicianSuggestion.setTechnician(technicianService.findByUsername(requestDTO.technicianUsername()));
         technicianSuggestion.setOrder(orderService.findById(requestDTO.orderId()));
         technicianSuggestion.setDateAndTimeOfTechSuggestion(LocalDateTime.now());
 
-        technicianService.sendTechnicianSuggestion(requestDTO.technicianUsername(), requestDTO.orderId(), technicianSuggestion);
+        technicianService.sendTechnicianSuggestion(requestDTO.orderId(), technicianSuggestion);
 
         return new ResponseEntity<>(TechnicianSuggestionMapper.INSTANCE.modelToDto(technicianSuggestion),HttpStatus.CREATED);
     }
 
-    @GetMapping("/seeSubAssistance/{username}")
-    public ResponseEntity<List<SubAssistanceResponseDTO>> seeSubAssistances(@PathVariable String username){
-        List<SubAssistance> subAssistances = subAssistanceService.showSubAssistancesToOthers(username);
+    @GetMapping("/seeSubAssistance")
+    public ResponseEntity<List<SubAssistanceResponseDTO>> seeSubAssistances(){
+        List<SubAssistance> subAssistances = subAssistanceService.showSubAssistancesToOthers();
         List<SubAssistanceResponseDTO> responseDTOS = new ArrayList<>();
 
         for(SubAssistance s: subAssistances)
@@ -82,7 +81,7 @@ public class TechnicianController {
     @Transactional
     @PostMapping("/seeScore")
     public ResponseEntity<String> seeScore (@RequestBody SeeScore request){
-        int score = technicianService.seeTechnicianScore(request.getTechnicianUsername(), request.getOrderId());
+        int score = technicianService.seeTechnicianScore(request.getOrderId());
         return new ResponseEntity<>("Technician score: " + score , HttpStatus.OK);
     }
 
