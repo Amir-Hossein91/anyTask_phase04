@@ -99,10 +99,10 @@ public class ManagerController {
         return new ResponseEntity<>("Technician resigned successfully", HttpStatus.CREATED);
     }
 
-    @GetMapping("/getSubAssistances/{username}")
+    @GetMapping("/getSubAssistances")
     @Transactional
-    public ResponseEntity<List<SubAssistanceResponseForManagerDTO>> getSubAssistances(@PathVariable String username) {
-        List<SubAssistance> subAssistances = subAssistanceService.showSubAssistancesToManager(username);
+    public ResponseEntity<List<SubAssistanceResponseForManagerDTO>> getSubAssistances() {
+        List<SubAssistance> subAssistances = subAssistanceService.showSubAssistancesToManager();
 
         Map<SubAssistanceResponseDTO, List<TechnicianResponseDTO>> resultsMap = new HashMap<>();
         for (SubAssistance s : subAssistances) {
@@ -159,10 +159,10 @@ public class ManagerController {
         return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
     }
 
-    @GetMapping("/getDeactivated/{username}")
+    @GetMapping("/getDeactivated")
     @Transactional
-    public ResponseEntity<List<TechnicianResponseDTO>> findDeactivatedTechnicians(@PathVariable String username) {
-        List<Technician> deactivatedList = technicianService.seeDeactivatedTechnicians(username);
+    public ResponseEntity<List<TechnicianResponseDTO>> findDeactivatedTechnicians() {
+        List<Technician> deactivatedList = technicianService.seeDeactivatedTechnicians();
         List<TechnicianResponseDTO> responseDTOS = new ArrayList<>();
 
         for (Technician t : deactivatedList)

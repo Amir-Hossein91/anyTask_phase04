@@ -84,8 +84,9 @@ public class SubAssistanceServiceImpl implements SubAssistanceService {
 
 
     @Transactional
-    public List<SubAssistance> showSubAssistancesToManager(String userName) {
-        Person person = personService.findByUsername(userName);
+    public List<SubAssistance> showSubAssistancesToManager() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Person person = personService.findByUsername(username);
         if (person instanceof Manager) {
             return findAll();
         } else

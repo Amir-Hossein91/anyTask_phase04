@@ -136,9 +136,9 @@ public class TechnicianServiceImpl implements TechnicianService {
         return technicians;
     }
 
-    public List<Technician> seeDeactivatedTechnicians(String managerUsername) {
-
-        Manager manager = managerService.findByUsername(managerUsername);
+    public List<Technician> seeDeactivatedTechnicians() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Manager manager = managerService.findByUsername(username);
         if (manager == null)
             throw new IllegalArgumentException("Only manager can see deactivated technicians");
 
