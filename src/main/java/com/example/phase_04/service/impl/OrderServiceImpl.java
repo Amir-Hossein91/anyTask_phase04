@@ -2,6 +2,7 @@ package com.example.phase_04.service.impl;
 
 import com.example.phase_04.entity.*;
 import com.example.phase_04.entity.enums.OrderStatus;
+import com.example.phase_04.exceptions.DeactivatedTechnicianException;
 import com.example.phase_04.exceptions.NotFoundException;
 import com.example.phase_04.repository.OrderRepository;
 import com.example.phase_04.service.OrderService;
@@ -221,7 +222,8 @@ public class OrderServiceImpl implements OrderService {
     public List<Order> customerOrTechnicianFilterOrders(Optional<OrderStatus> orderStatus) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Person person = personService.findByUsername(username);
-
+        if (person instanceof Technician && !((Technician) person).isActive())
+            throw new DeactivatedTechnicianException(Constants.DEACTIVATED_TECHNICIAN);
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Order> cq = cb.createQuery(Order.class);
         Root<Order> orderRoot = cq.from(Order.class);

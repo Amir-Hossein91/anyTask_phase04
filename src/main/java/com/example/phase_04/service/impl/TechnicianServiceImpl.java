@@ -204,6 +204,8 @@ public class TechnicianServiceImpl implements TechnicianService {
     public String reportCredit() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Technician technician = findByUsername(username);
+        if (!technician.isActive())
+            throw new DeactivatedTechnicianException(Constants.DEACTIVATED_TECHNICIAN);
         long credit = technician.getCredit();
         return "Your account credit is " + credit + " T";
     }

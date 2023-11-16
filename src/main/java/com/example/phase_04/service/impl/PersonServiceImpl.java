@@ -3,6 +3,7 @@ package com.example.phase_04.service.impl;
 import com.example.phase_04.entity.*;
 import com.example.phase_04.entity.enums.Role;
 import com.example.phase_04.entity.enums.TechnicianStatus;
+import com.example.phase_04.exceptions.DeactivatedTechnicianException;
 import com.example.phase_04.exceptions.NotFoundException;
 import com.example.phase_04.repository.PersonRepository;
 import com.example.phase_04.service.PersonService;
@@ -55,6 +56,8 @@ public class PersonServiceImpl implements PersonService {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Person fetched = findByUsername(username);
         if (fetched != null) {
+            if(fetched instanceof Technician && !((Technician) fetched).isActive())
+                    throw new DeactivatedTechnicianException(Constants.DEACTIVATED_TECHNICIAN);
             if (!passwordEncoder.matches(oldPassword, fetched.getPassword()))
                 throw new IllegalArgumentException(Constants.INCORRECT_PASSWORD);
             fetched.setPassword(passwordEncoder.encode(newPassword));
@@ -118,6 +121,8 @@ public class PersonServiceImpl implements PersonService {
     public Person login(String username, String password) {
 
         Person fetched = findByUsername(username);
+        if (fetched instanceof Technician && !((Technician) fetched).isActive())
+            throw new DeactivatedTechnicianException(Constants.DEACTIVATED_TECHNICIAN);
         if (fetched == null || !passwordEncoder.matches(password, fetched.getPassword()))
             throw new NotFoundException(Constants.INCORRECT_USERNAME_PASSWORD);
         return fetched;
