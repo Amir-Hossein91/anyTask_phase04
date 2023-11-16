@@ -185,9 +185,9 @@ public class ManagerController {
         Optional<String> lastname = Optional.ofNullable(request.getLastname());
         Optional<String> email = Optional.ofNullable(request.getEmail());
         long subAssistanceId = 0;
-        if (request.getSubAsssitanceTitle() != null && request.getAssitanceTitle() != null) {
-            String subTitle = request.getSubAsssitanceTitle();
-            Assistance assistance = assistanceService.findAssistance(request.getAssitanceTitle());
+        if (request.getSubAssistanceTitle() != null && request.getAssistanceTitle() != null) {
+            String subTitle = request.getSubAssistanceTitle();
+            Assistance assistance = assistanceService.findAssistance(request.getAssistanceTitle());
             if (assistance != null) {
                 SubAssistance subAssistance = subAssistanceService.findSubAssistance(subTitle, assistance);
                 if (subAssistance != null) {

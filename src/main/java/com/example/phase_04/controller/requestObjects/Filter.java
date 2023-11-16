@@ -11,8 +11,8 @@ public class Filter {
     private String firstName;
     private String lastname;
     private String email;
-    private String subAsssitanceTitle;
-    private String assitanceTitle;
+    private String subAssistanceTitle;
+    private String assistanceTitle;
     private String maxMin;
     private LocalDateTime registeredFrom;
     private LocalDateTime registeredUntil;

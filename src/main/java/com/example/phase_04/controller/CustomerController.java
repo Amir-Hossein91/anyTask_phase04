@@ -35,16 +35,13 @@ public class CustomerController {
 
     private final CustomerServiceImpl customerService;
     private final SubAssistanceServiceImpl subAssistanceService;
-    private final AssistanceServiceImpl assistanceService;
     private final OrderServiceImpl orderService;
 
     public CustomerController(CustomerServiceImpl customerService,
                               SubAssistanceServiceImpl subAssistanceService,
-                              AssistanceServiceImpl assistanceService,
                               OrderServiceImpl orderService) {
         this.customerService = customerService;
         this.subAssistanceService = subAssistanceService;
-        this.assistanceService = assistanceService;
         this.orderService = orderService;
     }
 

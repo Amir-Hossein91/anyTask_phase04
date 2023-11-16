@@ -43,7 +43,7 @@ public class SecurityConfig {
     @Autowired
     @Transactional
     public void getUser(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(username -> personService.findByUsername(username))
+        auth.userDetailsService(personService::findByUsername)
                 .passwordEncoder(passwordEncoder);
     }
 }

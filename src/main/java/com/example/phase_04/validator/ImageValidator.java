@@ -27,9 +27,7 @@ public class ImageValidator implements ConstraintValidator<Image, byte[]> {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-            if (image.length > 307200)
-                return false;
-            return true;
+        return image.length <= 307200;
     }
 }
 

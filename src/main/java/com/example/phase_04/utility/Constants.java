@@ -1,12 +1,9 @@
 package com.example.phase_04.utility;
 
 public class Constants {
-    public static final String INVALID_IMAGE_FORMAT = "Image format must be of type \"jpg\"";
-    public static final String INVALID_IMAGE_SIZE = "Image must have maximum size of 300 kB";
     public static final String INCORRECT_PASSWORD = "Incorrect current password";
     public static final String INVALID_USERNAME = "No person found with this username";
     public static final String INCORRECT_USERNAME_PASSWORD = "Incorrect username or password";
-    public static final String IMAGE_NOT_SAVED_TO_DIRECTORY = "Could not save image to the directory";
     public static final String ASSISTANCE_ALREADY_EXISTS = "Assistance already exists";
     public static final String NO_SUCH_ASSISTANCE_CATEGORY = "Assistance category does not exist";
     public static final String SUBASSISTANCE_ALREADY_EXISTS = "Sub-assistance already exists";
@@ -16,7 +13,6 @@ public class Constants {
     public static final String DUPLICATE_TECHNICIAN_SUBASSISTANCE = "Technician is already assigned to the sub-assistance";
     public static final String TECHNICIAN_NOT_IN_LIST = "Technician is not assigned to this sub-assistance";
     public static final String NO_SUCH_SUBASSISTANCE = "Sub-assistance title does not exist";
-    public static final String COULD_NOT_SAVE_THE_TECHNICIAN_LIST = "Could not save the list of technicians";
     public static final String NO_UNAPPROVED_TECHNICIANS = "There is no unapproved technician";
     public static final String NO_DEACTIVATED_TECHNICIANS = "There is no deactivated technician";
     public static final String INVALID_SUGGESTED_PRICE = "Suggested price can not be less than base price";
@@ -36,6 +32,5 @@ public class Constants {
     public static final String NOT_ENOUGH_CREDIT = "Not enough credit";
     public static final String NO_TECHNICIAN_SELECTED = "No technician is selected yet";
     public static final String SUGGESTION_IS_NOT_THE_CHOSEN_ONE = "This suggestion is not the one tha customer has chosen";
-    public static final String ORDER_CANT_START_BEFORE_SUGGESTED_TIME = "Order can not get started before the technician suggested time";
     public static final String ORDER_NOT_STARTED = "Order status can not be set as 'finished' before it gets started";
 }

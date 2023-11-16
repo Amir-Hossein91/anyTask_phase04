@@ -53,10 +53,8 @@ public class Order extends BaseEntity {
     public String toString() {
         return super.toString() +
                 "\n\tsub_Assistance = " + this.getSubAssistance().getTitle() +
-               /* "\n\tassistance = " + this.getSubAssistance().getAssistance().getTitle() +*/
                 "\n\tcustomer = " + this.getCustomer().getId() +
                 "\n\ttechnician = " + (this.getTechnician()==null ? "[]": this.getTechnician().getId()) +
-               /* "\n\torder_Registration_Date_And_Time = " + BaseEntity.getPersianDateTime(this.getOrderRegistrationDateAndTime()) +*/
                 "\n\torder_Description = " + this.getOrderDescription() +
                 "\n\torder_Status = " + this.getOrderStatus() +
                 "\n\ttechnician_Score = " + this.getTechnicianScore() +

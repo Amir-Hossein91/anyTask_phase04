@@ -28,7 +28,6 @@ import java.util.Optional;
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository repository;
-    private final ManagerServiceImpl managerService;
     private final CustomerServiceImpl customerService;
     private final AssistanceServiceImpl assistanceService;
     private final SubAssistanceServiceImpl subAssistanceService;
@@ -39,7 +38,6 @@ public class OrderServiceImpl implements OrderService {
     private EntityManager em;
 
     public OrderServiceImpl(OrderRepository repository,
-                            ManagerServiceImpl managerService,
                             @Lazy CustomerServiceImpl customerService,
                             @Lazy AssistanceServiceImpl assistanceService,
                             @Lazy SubAssistanceServiceImpl subAssistanceService,
@@ -47,19 +45,11 @@ public class OrderServiceImpl implements OrderService {
                             @Lazy PersonServiceImpl personService) {
         super();
         this.repository = repository;
-        this.managerService = managerService;
         this.customerService = customerService;
         this.assistanceService = assistanceService;
         this.subAssistanceService = subAssistanceService;
         this.technicianService = technicianService;
         this.personService = personService;
-    }
-
-    public List<String> showAllOrders(String managerUsername) {
-        Manager manager = managerService.findByUsername(managerUsername);
-        if (manager == null)
-            throw new IllegalArgumentException("Only manager can see the list of all orders");
-        return findAll().stream().map(Object::toString).toList();
     }
 
     @Transactional

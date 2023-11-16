@@ -1,6 +1,5 @@
 package com.example.phase_04.service.impl;
 
-import com.example.phase_04.entity.Manager;
 import com.example.phase_04.entity.Order;
 import com.example.phase_04.entity.TechnicianSuggestion;
 import com.example.phase_04.exceptions.NotFoundException;
@@ -16,21 +15,10 @@ import java.util.List;
 public class TechnicianSuggestionServiceImpl implements TechnicianSuggestionService {
 
     private final TechnicianSuggestionRepository repository;
-    private final ManagerServiceImpl managerService;
 
-    public TechnicianSuggestionServiceImpl(TechnicianSuggestionRepository repository, ManagerServiceImpl managerService) {
+    public TechnicianSuggestionServiceImpl(TechnicianSuggestionRepository repository) {
         super();
         this.repository = repository;
-        this.managerService = managerService;
-    }
-
-
-    public List<String> showAllSuggestions(String managerUsername) {
-        Manager manager = managerService.findByUsername(managerUsername);
-        if (manager == null)
-            throw new IllegalArgumentException("Only manager can see the list of all technician suggestion");
-        return findAll().stream().map(Object::toString).toList();
-
     }
 
     @Override

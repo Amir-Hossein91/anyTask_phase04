@@ -10,7 +10,7 @@ import com.example.phase_04.service.PersonService;
 import com.example.phase_04.utility.Constants;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.TypedQuery;
+import jakarta.persistence.Query;
 import jakarta.persistence.criteria.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -94,28 +94,28 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Transactional
-    public Customer registerCustomer(Customer person) {
+    public void registerCustomer(Customer person) {
         person.setRole(Role.ROLE_CUSTOMER);
         person.setPassword(passwordEncoder.encode(person.getPassword()));
-        return customerService.saveOrUpdate(person);
+        customerService.saveOrUpdate(person);
     }
 
     @Transactional
-    public Technician registerTechnician(Technician technician) {
+    public void registerTechnician(Technician technician) {
         if (technician == null)
-            return null;
+            return;
         technician.setRole(Role.ROLE_TECHNICIAN);
         technician.setPassword(passwordEncoder.encode(technician.getPassword()));
-        return technicianService.saveOrUpdate(technician);
+        technicianService.saveOrUpdate(technician);
     }
 
     @Transactional
-    public Manager registerManager(Manager manager) {
+    public void registerManager(Manager manager) {
         if (managerService.doesManagerExist())
             throw new IllegalArgumentException("This organization already has a defined manager");
         manager.setRole(Role.ROLE_MANAGER);
         manager.setPassword(passwordEncoder.encode(manager.getPassword()));
-        return managerService.saveOrUpdate(manager);
+        managerService.saveOrUpdate(manager);
     }
 
     public Person login(String username, String password) {
@@ -166,26 +166,26 @@ public class PersonServiceImpl implements PersonService {
             finalPredicates.add(subAssistancePredicate);
         }
 
-        if (!maxMin.isEmpty()) {
+        if (maxMin.isPresent()) {
             String m = maxMin.get();
             if (m.equalsIgnoreCase("max")) {
-                Subquery<Integer> subquery = cq.subquery(Integer.class);
-                Root<Person> subqueryRoot = subquery.from(Person.class);
-                subquery.select(cb.max(subqueryRoot.get("score")));
-                finalPredicates.add(cb.equal(personRoot.get("score"), subquery));
+                Subquery<Integer> subQuery = cq.subquery(Integer.class);
+                Root<Person> subQueryRoot = subQuery.from(Person.class);
+                subQuery.select(cb.max(subQueryRoot.get("score")));
+                finalPredicates.add(cb.equal(personRoot.get("score"), subQuery));
             } else if (m.equalsIgnoreCase("min")) {
-                Subquery<Integer> subquery = cq.subquery(Integer.class);
-                Root<Person> subqueryRoot = subquery.from(Person.class);
-                subquery.select(cb.min(subqueryRoot.get("score")));
-                finalPredicates.add(cb.equal(personRoot.get("score"), subquery));
+                Subquery<Integer> subQuery = cq.subquery(Integer.class);
+                Root<Person> subQueryRoot = subQuery.from(Person.class);
+                subQuery.select(cb.min(subQueryRoot.get("score")));
+                finalPredicates.add(cb.equal(personRoot.get("score"), subQuery));
             }
         }
 
         cq.select(personRoot).where(finalPredicates.toArray(new Predicate[0]));
-        TypedQuery typedQuery = em.createQuery(cq);
-        List<Person> result = typedQuery.getResultList();
+        Query query = em.createQuery(cq);
+        List<Person> result = query.getResultList();
 
-        if (!role.isEmpty()) {
+        if (role.isPresent()) {
             String r = role.get();
             if (r.equals("customer")) {
                 for (int i = 0; i < result.size(); i++) {
