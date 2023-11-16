@@ -4,7 +4,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import org.hibernate.validator.constraints.Range;
 
-public record PaymentRequestDTO(
+public record PaymentRequestDTO(@NotNull(message = "Customer username can not be null")
+                                String customerUsername,
                                 @NotNull(message = "order ID must be defined")
                                 Long orderId,
                                 @Pattern(regexp = "^[\\d]{16}$",message = "Card number must have 16 digits")

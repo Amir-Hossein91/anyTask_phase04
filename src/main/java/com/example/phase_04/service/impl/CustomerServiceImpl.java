@@ -267,8 +267,8 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Transactional
-    public void payThePriceOnline(long orderId) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+    public void payThePriceOnline(String username, long orderId) {
+
         Customer customer = findByUsername(username);
         if (customer == null)
             throw new IllegalArgumentException("Paying the price is an act of 'customer'");

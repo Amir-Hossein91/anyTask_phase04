@@ -139,7 +139,7 @@ public class CustomerController {
         if(!checkedCaptcha.equalsIgnoreCase(requestDTO.captchaValue()))
             throw new IllegalArgumentException("Wrong captcha value");
 
-        customerService.payThePriceOnline(requestDTO.orderId());
+        customerService.payThePriceOnline(requestDTO.customerUsername(),requestDTO.orderId());
         return new ResponseEntity<>("Payment successful",HttpStatus.OK);
     }
 

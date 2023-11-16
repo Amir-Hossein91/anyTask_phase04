@@ -21,6 +21,11 @@
         <div class="input-group mb-3 align-middle pt-4 ">
             <h3 class="px-4 flex-md-row">Online payment</h3>
         </div>
+        <div class="input-group mb-3 align-middle pt-1" >
+            <label for="user-name" class="px-4" style="font-weight: bold">User Name</label>
+            <input style="text-align:center" type="text" class="form-control border border-dark" id="user-name" aria-label="Username"
+                   aria-describedby="basic-addon1">
+        </div>
         <div class="input-group mb-3 align-middle">
             <label style="font-weight: bold" for="order-id" class="px-4">Order ID</label>
             <input style="text-align:center" type="text" class="form-control border border-dark" id="order-id" aria-label="Username"
@@ -59,6 +64,7 @@
 
 <script>
     function myFunction() {
+        let customerUsername = $("#user-name").val();
         let orderId = $("#order-id").val();
         let creditCardNumber = $("#card-number").val();
         let cvv2 = $("#cvv2").val();
@@ -66,6 +72,7 @@
         let captchaValue = $("#captcha-text").val();
 
         const obj = {
+            customerUsername,
             orderId,
             creditCardNumber,
             cvv2,
