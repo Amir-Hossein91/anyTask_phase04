@@ -207,6 +207,6 @@ public class TechnicianServiceImpl implements TechnicianService {
         if (!technician.isActive())
             throw new DeactivatedTechnicianException(Constants.DEACTIVATED_TECHNICIAN);
         long credit = technician.getCredit();
-        return "Your account credit is " + credit + " T";
+        return "Your account credit is: " + credit + " T";
     }
 }

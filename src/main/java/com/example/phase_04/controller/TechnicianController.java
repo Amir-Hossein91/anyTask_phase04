@@ -96,6 +96,7 @@ public class TechnicianController {
     }
 
     @GetMapping("/seeCredit")
+    @Transactional
     public ResponseEntity<String> seeCredit (){
         String creditReport = technicianService.reportCredit();
         return new ResponseEntity<>(creditReport,HttpStatus.OK);
