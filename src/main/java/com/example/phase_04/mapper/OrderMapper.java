@@ -16,7 +16,6 @@ public interface OrderMapper {
     OrderMapper INSTANCE = Mappers.getMapper(OrderMapper.class);
 
     @Mapping(target = "subAssistance.title", source = "subAssistanceTitle")
-    @Mapping(target = "customer.username", source = "customerUsername")
     @Mapping(target = "orderDescription.customerSuggestedPrice", source = "customerSuggestedPrice")
     @Mapping(target = "orderDescription.customerDesiredDateAndTime", source = "customerDesiredDateAndTime")
     @Mapping(target = "orderDescription.taskDetails", source = "taskDetails")

@@ -14,7 +14,7 @@ public interface TechnicianSuggestionMapper {
 
     TechnicianSuggestionMapper INSTANCE = Mappers.getMapper(TechnicianSuggestionMapper.class);
 
-    @Mapping(target = "technician.username" , source = "requestDTO.technicianUsername")
+
     @Mapping(target = "order.id" , source = "requestDTO.orderId")
     TechnicianSuggestion dtoToModel (TechnicianSuggestionRequestDTO requestDTO);
 
