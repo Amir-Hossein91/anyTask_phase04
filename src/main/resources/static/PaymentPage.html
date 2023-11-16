@@ -21,7 +21,7 @@
         <div class="input-group mb-3 align-middle pt-4 ">
             <h3 class="px-4 flex-md-row">Online payment</h3>
         </div>
-        <div class="input-group mb-3 align-middle pt-1" >
+        <div class="input-group mb-3 align-middle pt-1 visually-hidden" >
             <label for="user-name" class="px-4" style="font-weight: bold">User Name</label>
             <input style="text-align:center" type="text" class="form-control border border-dark" id="user-name" aria-label="Username"
                    aria-describedby="basic-addon1">
@@ -109,6 +109,18 @@
                 image.setAttribute('src', json.base64)
             })
 
+    }
+</script>
+<script>
+    getUsername();
+
+    function getUsername(){
+        let username = document.getElementById('user-name');
+        fetch('http://localhost:8080/customer/usernameToHtml')
+            .then(result => result.json())
+            .then(json => {
+                username.setAttribute('value',json.name)
+            })
     }
 </script>
 <script>

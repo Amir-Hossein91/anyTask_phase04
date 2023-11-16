@@ -1,5 +1,6 @@
 package com.example.phase_04.service.impl;
 
+import com.example.phase_04.dto.response.CurrenUsernameDTO;
 import com.example.phase_04.entity.*;
 import com.example.phase_04.entity.enums.OrderStatus;
 import com.example.phase_04.exceptions.NotEnoughCreditException;
@@ -17,6 +18,7 @@ import java.util.List;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
+    private static String name ="";
 
     private final CustomerRepository repository;
     private final ManagerServiceImpl managerService;
@@ -352,5 +354,13 @@ public class CustomerServiceImpl implements CustomerService {
         Customer customer = findByUsername(username);
         long credit = customer.getCredit();
         return "Your account credit is: " + credit + " T";
+    }
+
+    public void setName(){
+        name = SecurityContextHolder.getContext().getAuthentication().getName();
+    }
+
+    public CurrenUsernameDTO getUsername() {
+        return new CurrenUsernameDTO(name);
     }
 }

@@ -121,6 +121,7 @@ public class CustomerController {
         switch(howToPay){
             case "credit" -> customerService.payThePriceByCredit(request.getOrderId());
             case "online" -> {
+                customerService.setName();
                 File htmlFile = new File("C:\\Users\\AmirHossein\\IdeaProjects\\anyTask\\phase_04\\src\\main\\resources\\static\\PaymentPage.html");
                 try {
                     Desktop.getDesktop().browse(htmlFile.toURI());
@@ -141,6 +142,11 @@ public class CustomerController {
 
         customerService.payThePriceOnline(requestDTO.customerUsername(),requestDTO.orderId());
         return new ResponseEntity<>("Payment successful",HttpStatus.OK);
+    }
+
+    @GetMapping("/usernameToHtml")
+    public CurrenUsernameDTO sendUsernameToHtml (){
+        return customerService.getUsername();
     }
 
     @GetMapping("/captcha")

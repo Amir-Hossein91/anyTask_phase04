@@ -31,6 +31,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request -> request.requestMatchers("/manager/**").hasRole("MANAGER")
                         .requestMatchers("/customer/captcha").permitAll()
                         .requestMatchers("/customer/onlinePayment").permitAll()
+                        .requestMatchers("/customer/usernameToHtml").permitAll()
                         .requestMatchers("/customer/**").hasAnyRole("CUSTOMER", "MANAGER")
                         .requestMatchers("/technician/**").hasAnyRole("TECHNICIAN", "MANAGER")
                         .requestMatchers("/person/changePassword").hasAnyRole("TECHNICIAN", "MANAGER", "CUSTOMER")
