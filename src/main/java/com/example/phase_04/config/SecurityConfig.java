@@ -32,8 +32,8 @@ public class SecurityConfig {
                         .requestMatchers("/customer/captcha").permitAll()
                         .requestMatchers("/customer/onlinePayment").permitAll()
                         .requestMatchers("/customer/usernameToHtml").permitAll()
-                        .requestMatchers("/customer/**").hasAnyRole("CUSTOMER", "MANAGER")
-                        .requestMatchers("/technician/**").hasAnyRole("TECHNICIAN", "MANAGER")
+                        .requestMatchers("/customer/**").hasAnyRole("CUSTOMER")
+                        .requestMatchers("/technician/**").hasAnyRole("TECHNICIAN")
                         .requestMatchers("/person/changePassword").hasAnyRole("TECHNICIAN", "MANAGER", "CUSTOMER")
                         .anyRequest().permitAll())
                 .httpBasic(withDefaults());
