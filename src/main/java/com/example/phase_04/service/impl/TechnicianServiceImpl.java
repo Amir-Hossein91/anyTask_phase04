@@ -18,19 +18,16 @@ import java.util.List;
 public class TechnicianServiceImpl implements TechnicianService {
 
     private final TechnicianRepository repository;
-    private final ManagerServiceImpl managerService;
     private final SubAssistanceServiceImpl subAssistanceService;
     private final AssistanceServiceImpl assistanceService;
     private final OrderServiceImpl orderService;
 
     public TechnicianServiceImpl(TechnicianRepository repository,
-                                 ManagerServiceImpl managerService,
                                  SubAssistanceServiceImpl subAssistanceService,
                                  AssistanceServiceImpl assistanceService,
                                  OrderServiceImpl orderService) {
         super();
         this.repository = repository;
-        this.managerService = managerService;
         this.subAssistanceService = subAssistanceService;
         this.assistanceService = assistanceService;
         this.orderService = orderService;
@@ -137,10 +134,6 @@ public class TechnicianServiceImpl implements TechnicianService {
     }
 
     public List<Technician> seeDeactivatedTechnicians() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        Manager manager = managerService.findByUsername(username);
-        if (manager == null)
-            throw new IllegalArgumentException("Only manager can see deactivated technicians");
 
         List<Technician> technicians = repository.findDeactivated().orElse(null);
         if (technicians == null || technicians.isEmpty())
@@ -151,8 +144,6 @@ public class TechnicianServiceImpl implements TechnicianService {
     public List<Order> findRelatedOrders() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Technician technician = findByUsername(username);
-        if (technician == null)
-            throw new IllegalArgumentException("Only technicians can see their relative orders");
 
         if (!technician.isActive())
             throw new DeactivatedTechnicianException(Constants.DEACTIVATED_TECHNICIAN);
@@ -164,8 +155,6 @@ public class TechnicianServiceImpl implements TechnicianService {
     public void sendTechnicianSuggestion(long orderId, TechnicianSuggestion technicianSuggestion) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Technician technician = findByUsername(username);
-        if (technician == null)
-            throw new IllegalArgumentException("Only technicians can send suggestions to an order");
 
         if (!technician.isActive())
             throw new DeactivatedTechnicianException(Constants.DEACTIVATED_TECHNICIAN);
@@ -182,8 +171,6 @@ public class TechnicianServiceImpl implements TechnicianService {
     public int seeTechnicianScore (long orderId){
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Technician technician = findByUsername(username);
-        if (technician == null)
-            throw new IllegalArgumentException("No technician has been registered with this username");
 
         if (!technician.isActive())
             throw new DeactivatedTechnicianException(Constants.DEACTIVATED_TECHNICIAN);

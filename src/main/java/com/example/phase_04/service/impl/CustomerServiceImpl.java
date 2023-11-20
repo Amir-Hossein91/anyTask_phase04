@@ -49,8 +49,6 @@ public class CustomerServiceImpl implements CustomerService {
     public List<TechnicianSuggestion> seeTechnicianSuggestionsOrderedByPrice(long orderId) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Customer customer = findByUsername(username);
-        if (customer == null)
-            throw new IllegalArgumentException("Only customers have access to this function");
 
         Order order = orderService.findById(orderId);
         if (!isSuggestionChoosingPossible(customer, order))
@@ -71,8 +69,6 @@ public class CustomerServiceImpl implements CustomerService {
     public List<TechnicianSuggestion> seeTechnicianSuggestionsOrderedByScore(long orderId) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Customer customer = findByUsername(username);
-        if (customer == null)
-            throw new IllegalArgumentException("Only customers have access to this function");
 
         Order order = orderService.findById(orderId);
         if (!isSuggestionChoosingPossible(customer, order))
@@ -93,8 +89,6 @@ public class CustomerServiceImpl implements CustomerService {
     public TechnicianSuggestion chooseSuggestion(long orderId, long suggestionId) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Customer customer = findByUsername(username);
-        if (customer == null)
-            throw new IllegalArgumentException("Only customers have access to this function");
 
         Order order = orderService.findById(orderId);
         if (!isSuggestionChoosingPossible(customer, order))
@@ -128,8 +122,6 @@ public class CustomerServiceImpl implements CustomerService {
     public void markOrderAsStarted(long orderId) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Customer customer = findByUsername(username);
-        if (customer == null)
-            throw new IllegalArgumentException("Only customers have access to this function");
         Order order = orderService.findById(orderId);
         if (order == null)
             throw new NotFoundException(Constants.NO_SUCH_ORDER);
@@ -165,8 +157,6 @@ public class CustomerServiceImpl implements CustomerService {
     public void markOrderAsFinished(long orderId) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Customer customer = findByUsername(username);
-        if (customer == null)
-            throw new IllegalArgumentException("Only customers have access to this function");
         Order order = orderService.findById(orderId);
         if (order == null)
             throw new NotFoundException(Constants.NO_SUCH_ORDER);
@@ -218,8 +208,6 @@ public class CustomerServiceImpl implements CustomerService {
     public void payThePriceByCredit(long orderId) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Customer customer = findByUsername(username);
-        if (customer == null)
-            throw new IllegalArgumentException("Paying the price is an act of 'customer'");
         Order order = orderService.findById(orderId);
         if (order == null)
             throw new NotFoundException(Constants.NO_SUCH_ORDER);
@@ -248,8 +236,6 @@ public class CustomerServiceImpl implements CustomerService {
     public void payThePriceOnline(String username, long orderId) {
 
         Customer customer = findByUsername(username);
-        if (customer == null)
-            throw new IllegalArgumentException("Paying the price is an act of 'customer'");
         Order order = orderService.findById(orderId);
         if (order == null)
             throw new NotFoundException(Constants.NO_SUCH_ORDER);
@@ -273,8 +259,6 @@ public class CustomerServiceImpl implements CustomerService {
     public void scoreTheTechnician(long orderId, int score, String opinion) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Customer customer = findByUsername(username);
-        if (customer == null)
-            throw new IllegalArgumentException("Scoring the 'technician' is an act of 'customer'");
         Order order = orderService.findById(orderId);
         if (order == null)
             throw new NotFoundException(Constants.NO_SUCH_ORDER);

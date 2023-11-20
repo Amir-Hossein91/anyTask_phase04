@@ -102,8 +102,6 @@ public class PersonServiceImpl implements PersonService {
 
     @Transactional
     public void registerTechnician(Technician technician) {
-        if (technician == null)
-            return;
         technician.setRole(Role.ROLE_TECHNICIAN);
         technician.setPassword(passwordEncoder.encode(technician.getPassword()));
         technicianService.saveOrUpdate(technician);
