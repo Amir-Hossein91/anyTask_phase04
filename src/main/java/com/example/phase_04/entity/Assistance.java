@@ -4,7 +4,6 @@ import com.example.phase_04.entity.base.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.SequenceGenerator;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.springframework.stereotype.Component;
@@ -20,7 +19,6 @@ import org.springframework.stereotype.Component;
 @EqualsAndHashCode(callSuper = true)
 @Component
 public class Assistance extends BaseEntity {
-    @NotNull(message = "Assistance title can not be null")
     @Column(unique = true)
     private String title;
 

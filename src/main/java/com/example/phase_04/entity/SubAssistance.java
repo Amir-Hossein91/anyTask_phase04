@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.validator.constraints.Range;
 
 import java.util.List;
 
@@ -18,9 +17,7 @@ import java.util.List;
 @SuperBuilder
 @EqualsAndHashCode(callSuper = true)
 public class SubAssistance extends BaseEntity {
-    @NotNull(message = "Sub-assistance title can not be null")
     private String title;
-    @Range(min = 0, message = "Base price can not be negative")
     @Column(name = "base_Price")
     private long basePrice;
     @ManyToMany

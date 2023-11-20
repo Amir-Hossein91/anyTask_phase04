@@ -1,7 +1,7 @@
 package com.example.phase_04.dto.request;
 
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import org.hibernate.validator.constraints.Range;
 
@@ -14,8 +14,8 @@ public record CustomerRequestDTO (
                                 String lastName,
                                 @Email
                                 String email,
-                                @NotNull(message = "Username can not be null")
-                                @Pattern(regexp = "^[^\\s]+$", message = "Username can not be empty")
+                                @NotBlank(message = "Username can not be blank")
+                                @Pattern(regexp = "^[^\\s]+$", message = "Username can not contain white spaces")
                                 String username,
                                 @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*\\d)[a-zA-Z\\d]{8,}$", message = "Password must be at least " +
                                         "8 characters containing digits and letters")

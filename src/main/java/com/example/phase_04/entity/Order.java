@@ -6,7 +6,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Cascade;
-import org.hibernate.validator.constraints.Range;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -35,7 +34,6 @@ public class Order extends BaseEntity {
     @Enumerated(value = EnumType.STRING)
     @Column(name = "order_status")
     private OrderStatus orderStatus;
-    @Range(min = 1, max = 5, message = "Technician score should be between 1 and 5")
     @Column(name = "technician_score")
     private int technicianScore;
     @OneToMany(mappedBy = "order",fetch = FetchType.EAGER)

@@ -5,10 +5,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.validator.constraints.Range;
 
 import java.time.LocalDateTime;
 
@@ -28,13 +26,10 @@ public class TechnicianSuggestion extends BaseEntity {
     private Order order;
     @Column(name = "Date_And_Time_Of_Tech_Suggestion")
     private LocalDateTime DateAndTimeOfTechSuggestion;
-    @Range(min = 0, message = "Price can not be negative")
     @Column(name = "tech_Suggested_Price")
     private long techSuggestedPrice;
-    @NotNull(message = "A technician suggested start date must be set")
     @Column(name = "tech_Suggested_Date")
     private LocalDateTime techSuggestedDate;
-    @Range(min = 0, message = "Task duration can not be negative")
     @Column(name = "task_Estimated_Duration")
     private int taskEstimatedDuration;
 

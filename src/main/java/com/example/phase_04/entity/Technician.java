@@ -4,7 +4,6 @@ import com.example.phase_04.entity.enums.TechnicianStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.validator.constraints.Range;
 
 import java.util.List;
 
@@ -18,7 +17,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Technician extends Person {
-    @Range(min = 0, message = "Credit can not be negative")
     private long credit;
     @ManyToMany(mappedBy = "technicians")
     private List<SubAssistance> subAssistances;
