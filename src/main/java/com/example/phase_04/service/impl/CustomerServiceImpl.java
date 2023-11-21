@@ -23,14 +23,59 @@ public class CustomerServiceImpl implements CustomerService {
     private final CustomerRepository repository;
     private final OrderServiceImpl orderService;
     private final TechnicianSuggestionServiceImpl technicianSuggestionService;
+    private final AssistanceServiceImpl assistanceService;
+    private final SubAssistanceServiceImpl subAssistanceService;
 
     public CustomerServiceImpl(CustomerRepository repository,
                                OrderServiceImpl orderService,
-                               TechnicianSuggestionServiceImpl technicianSuggestionService) {
+                               TechnicianSuggestionServiceImpl technicianSuggestionService,
+                               AssistanceServiceImpl assistanceService,
+                               SubAssistanceServiceImpl subAssistanceService) {
         super();
         this.repository = repository;
         this.orderService = orderService;
         this.technicianSuggestionService = technicianSuggestionService;
+        this.assistanceService = assistanceService;
+        this.subAssistanceService = subAssistanceService;
+    }
+
+    @Transactional
+    public Order makeOrder(String subAssistanceTitle, String assistanceTitle, OrderDescription orderDescription) {
+
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Customer customer = findByUsername(username);
+        if (customer == null)
+            throw new IllegalArgumentException("Only a customer can make an order");
+        Assistance assistance = assistanceService.findAssistance(assistanceTitle);
+        if (assistance == null)
+            throw new NotFoundException(Constants.ASSISTANCE_NOT_FOUND);
+
+        SubAssistance subAssistance = subAssistanceService.findSubAssistance(subAssistanceTitle, assistance);
+        if (subAssistance == null)
+            throw new NotFoundException(Constants.NO_SUCH_SUBASSISTANCE);
+
+        if (orderDescription.getCustomerSuggestedPrice() < subAssistance.getBasePrice())
+            throw new IllegalArgumentException(Constants.INVALID_SUGGESTED_PRICE);
+
+        if (orderDescription.getCustomerDesiredDateAndTime().isBefore(LocalDateTime.now()))
+            throw new IllegalArgumentException(Constants.DATE_BEFORE_NOW);
+
+        Order order = Order.builder()
+                .subAssistance(subAssistance)
+                .customer(customer)
+                .orderRegistrationDateAndTime(LocalDateTime.now())
+                .orderDescription(orderDescription)
+                .orderStatus(OrderStatus.WAITING_FOR_TECHNICIANS_SUGGESTIONS)
+                .technicianScore(1)
+                .isTechnicianScored(false)
+                .build();
+
+        order = orderService.saveOrUpdate(order);
+
+        customer.setOrderCount(customer.getOrderCount() + 1);
+        saveOrUpdate(customer);
+
+        return order;
     }
 
     private boolean isSuggestionChoosingPossible(Person person, Order order) {

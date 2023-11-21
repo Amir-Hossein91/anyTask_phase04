@@ -33,20 +33,20 @@ public class CustomerController {
     private String captchaText = "";
 
     private final CustomerServiceImpl customerService;
-    private final SubAssistanceServiceImpl subAssistanceService;
     private final OrderServiceImpl orderService;
+    private final PersonServiceImpl personService;
 
     public CustomerController(CustomerServiceImpl customerService,
-                              SubAssistanceServiceImpl subAssistanceService,
-                              OrderServiceImpl orderService) {
+                              OrderServiceImpl orderService,
+                              PersonServiceImpl personService) {
         this.customerService = customerService;
-        this.subAssistanceService = subAssistanceService;
         this.orderService = orderService;
+        this.personService = personService;
     }
 
     @GetMapping("/seeSubAssistance")
     public ResponseEntity<List<SubAssistanceResponseDTO>> seeSubAssistances(){
-        List<SubAssistance> subAssistances = subAssistanceService.showSubAssistancesToOthers();
+        List<SubAssistance> subAssistances = personService.showSubAssistancesToOthers();
         List<SubAssistanceResponseDTO> responseDTOS = new ArrayList<>();
 
         for(SubAssistance s: subAssistances)
@@ -59,7 +59,7 @@ public class CustomerController {
     public ResponseEntity<OrderResponseDTO> makeOrder (@RequestBody @Valid OrderRequestDTO requestDTO) {
 
         Order order = OrderMapper.INSTANCE.dtoToModel(requestDTO);
-        order = orderService.makeOrder(requestDTO.subAssistanceTitle(),
+        order = customerService.makeOrder(requestDTO.subAssistanceTitle(),
                     requestDTO.assistanceTitle(),order.getOrderDescription());
 
         return new ResponseEntity<>(OrderMapper.INSTANCE.modelToDto(order),HttpStatus.CREATED);
@@ -163,7 +163,7 @@ public class CustomerController {
     @PostMapping("/filterOrders")
     public ResponseEntity<List<OrderResponseDTO>> filterOrders (@RequestBody CustomerOrTechnicianFilterOrders request){
         Optional<OrderStatus> orderStatus = Optional.ofNullable(request.getOrderStatus());
-        List<Order> orders = orderService.customerOrTechnicianFilterOrders(orderStatus);
+        List<Order> orders = personService.customerOrTechnicianFilterOrders(orderStatus);
         List<OrderResponseDTO> orderDTOs = new ArrayList<>();
         for(Order o : orders)
             orderDTOs.add(OrderMapper.INSTANCE.modelToDto(o));

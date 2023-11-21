@@ -1,15 +1,12 @@
 package com.example.phase_04.service.impl;
 
 import com.example.phase_04.entity.*;
-import com.example.phase_04.exceptions.DeactivatedTechnicianException;
 import com.example.phase_04.exceptions.DuplicateSubAssistanceException;
 import com.example.phase_04.exceptions.NoSuchAsssistanceCategoryException;
 import com.example.phase_04.exceptions.NotFoundException;
 import com.example.phase_04.repository.SubAssistanceRepository;
 import com.example.phase_04.service.SubAssistanceService;
 import com.example.phase_04.utility.Constants;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,15 +16,12 @@ import java.util.List;
 public class SubAssistanceServiceImpl implements SubAssistanceService {
 
     private final SubAssistanceRepository repository;
-    private final PersonServiceImpl personService;
     private final AssistanceServiceImpl assistanceService;
 
     public SubAssistanceServiceImpl(SubAssistanceRepository repository,
-                                    @Lazy PersonServiceImpl personService,
                                     AssistanceServiceImpl assistanceService) {
         super();
         this.repository = repository;
-        this.personService = personService;
         this.assistanceService = assistanceService;
     }
 
@@ -80,27 +74,6 @@ public class SubAssistanceServiceImpl implements SubAssistanceService {
             throw new DuplicateSubAssistanceException(Constants.SUBASSISTANCE_ALREADY_EXISTS);
         subAssistance.setAssistance(assistance);
         return saveOrUpdate(subAssistance);
-    }
-
-
-    @Transactional
-    public List<SubAssistance> showSubAssistancesToManager() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        Person person = personService.findByUsername(username);
-        if (person instanceof Manager) {
-            return findAll();
-        } else
-            throw new IllegalArgumentException("This operation is only valid for manager");
-    }
-
-    @Transactional
-    public List<SubAssistance> showSubAssistancesToOthers() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        Person person = personService.findByUsername(username);
-
-        if (person instanceof Technician && !((Technician) person).isActive())
-            throw new DeactivatedTechnicianException(Constants.DEACTIVATED_TECHNICIAN);
-        return findAll();
     }
 
     @Transactional

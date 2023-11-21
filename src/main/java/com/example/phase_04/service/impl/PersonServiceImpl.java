@@ -1,6 +1,8 @@
 package com.example.phase_04.service.impl;
 
 import com.example.phase_04.entity.*;
+import com.example.phase_04.entity.Order;
+import com.example.phase_04.entity.enums.OrderStatus;
 import com.example.phase_04.entity.enums.Role;
 import com.example.phase_04.entity.enums.TechnicianStatus;
 import com.example.phase_04.exceptions.DeactivatedTechnicianException;
@@ -29,6 +31,7 @@ public class PersonServiceImpl implements PersonService {
     private final ManagerServiceImpl managerService;
     private final CustomerServiceImpl customerService;
     private final TechnicianServiceImpl technicianService;
+    private final AssistanceServiceImpl assistanceService;
     private final SubAssistanceServiceImpl subAssistanceService;
     private final BCryptPasswordEncoder passwordEncoder;
 
@@ -40,6 +43,7 @@ public class PersonServiceImpl implements PersonService {
                              ManagerServiceImpl managerService,
                              CustomerServiceImpl customerService,
                              TechnicianServiceImpl technicianService,
+                             AssistanceServiceImpl assistanceService,
                              SubAssistanceServiceImpl subAssistanceService,
                              BCryptPasswordEncoder passwordEncoder) {
         super();
@@ -47,6 +51,7 @@ public class PersonServiceImpl implements PersonService {
         this.managerService = managerService;
         this.customerService = customerService;
         this.technicianService = technicianService;
+        this.assistanceService = assistanceService;
         this.subAssistanceService = subAssistanceService;
         this.passwordEncoder = passwordEncoder;
     }
@@ -208,6 +213,83 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Transactional
+    public List<Order> managerFilterOrders(long customerId,
+                                           long technicianId,
+                                           Optional<LocalDateTime> from,
+                                           Optional<LocalDateTime> until,
+                                           Optional<OrderStatus> status,
+                                           Optional<String> assistanceTitle,
+                                           Optional<String> subAssistanceTitle) {
+
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Order> cq = cb.createQuery(Order.class);
+        Root<Order> orderRoot = cq.from(Order.class);
+
+        List<Predicate> predicates = new ArrayList<>();
+
+
+        if(customerId != 0){
+            Customer fetchedCustomer = customerService.findById(customerId);
+            predicates.add(cb.equal(orderRoot.get("customer"),fetchedCustomer));
+        }
+
+        if(technicianId != 0){
+            Technician fetchedTechnician = technicianService.findById(technicianId);
+            predicates.add(cb.equal(orderRoot.get("technician"),fetchedTechnician));
+        }
+
+        from.map(f -> predicates.add(cb.greaterThanOrEqualTo(orderRoot.get("orderRegistrationDateAndTime"), f)));
+        until.map(u -> predicates.add(cb.lessThanOrEqualTo(orderRoot.get("orderRegistrationDateAndTime"), u)));
+        status.map(st -> predicates.add((cb.equal(orderRoot.get("orderStatus"),st))));
+
+        if(assistanceTitle.isPresent()){
+            List<Predicate> subAssistancePredicates = new ArrayList<>();
+            Assistance assistance = assistanceService.findAssistance(assistanceTitle.get());
+            List<SubAssistance> fetchedSubAssistances = subAssistanceService.findSubAssistance(assistance);
+            for(SubAssistance s: fetchedSubAssistances)
+                subAssistancePredicates.add(cb.equal(orderRoot.get("subAssistance"),s));
+
+            predicates.add(cb.or(subAssistancePredicates.toArray(new Predicate[0])));
+        }
+
+        if(subAssistanceTitle.isPresent()){
+            List<Predicate> subAssistancePredicates = new ArrayList<>();
+            List<SubAssistance> fetchedSubAssistances = subAssistanceService.findSubAssistance(subAssistanceTitle.get());
+            for(SubAssistance s: fetchedSubAssistances)
+                subAssistancePredicates.add(cb.equal(orderRoot.get("subAssistance"),s));
+
+            predicates.add(cb.or(subAssistancePredicates.toArray(new Predicate[0])));
+        }
+
+        cq.select(orderRoot).where(predicates.toArray(new Predicate[0]));
+        Query query = em.createQuery(cq);
+        return query.getResultList();
+    }
+
+    @Transactional
+    public List<Order> customerOrTechnicianFilterOrders(Optional<OrderStatus> orderStatus) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Person person = findByUsername(username);
+        if (person instanceof Technician && !((Technician) person).isActive())
+            throw new DeactivatedTechnicianException(Constants.DEACTIVATED_TECHNICIAN);
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Order> cq = cb.createQuery(Order.class);
+        Root<Order> orderRoot = cq.from(Order.class);
+        List<Predicate> predicates = new ArrayList<>();
+
+        if(person instanceof Customer)
+            predicates.add(cb.equal(orderRoot.get("customer"),person));
+        else
+            predicates.add(cb.equal(orderRoot.get("technician"),person));
+
+        orderStatus.map(o -> predicates.add(cb.equal(orderRoot.get("orderStatus"),o)));
+
+        cq.select(orderRoot).where(predicates.toArray(new Predicate[0]));
+        Query query = em.createQuery(cq);
+        return query.getResultList();
+    }
+
+    @Transactional
     public void enablePerson(String username) {
         Person person = findByUsername(username);
         if (person instanceof Technician) {
@@ -216,5 +298,25 @@ public class PersonServiceImpl implements PersonService {
         } else
             person.setClickedActivationLink(true);
         repository.save(person);
+    }
+
+    @Transactional
+    public List<SubAssistance> showSubAssistancesToManager() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Person person = findByUsername(username);
+        if (person instanceof Manager) {
+            return subAssistanceService.findAll();
+        } else
+            throw new IllegalArgumentException("This operation is only valid for manager");
+    }
+
+    @Transactional
+    public List<SubAssistance> showSubAssistancesToOthers() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Person person = findByUsername(username);
+
+        if (person instanceof Technician && !((Technician) person).isActive())
+            throw new DeactivatedTechnicianException(Constants.DEACTIVATED_TECHNICIAN);
+        return subAssistanceService.findAll();
     }
 }

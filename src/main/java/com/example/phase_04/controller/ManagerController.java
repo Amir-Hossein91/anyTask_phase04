@@ -26,18 +26,15 @@ public class ManagerController {
     private final AssistanceServiceImpl assistanceService;
     private final SubAssistanceServiceImpl subAssistanceService;
     private final TechnicianServiceImpl technicianService;
-    private final OrderServiceImpl orderService;
 
     public ManagerController(PersonServiceImpl personService,
                              AssistanceServiceImpl assistanceService,
                              SubAssistanceServiceImpl subAssistanceService,
-                             TechnicianServiceImpl technicianService,
-                             OrderServiceImpl orderService) {
+                             TechnicianServiceImpl technicianService) {
         this.personService = personService;
         this.assistanceService = assistanceService;
         this.subAssistanceService = subAssistanceService;
         this.technicianService = technicianService;
-        this.orderService = orderService;
     }
 
     @PostMapping("/addAssistance")
@@ -102,7 +99,7 @@ public class ManagerController {
     @GetMapping("/getSubAssistances")
     @Transactional
     public ResponseEntity<List<SubAssistanceResponseForManagerDTO>> getSubAssistances() {
-        List<SubAssistance> subAssistances = subAssistanceService.showSubAssistancesToManager();
+        List<SubAssistance> subAssistances = personService.showSubAssistancesToManager();
 
         Map<SubAssistanceResponseDTO, List<TechnicianResponseDTO>> resultsMap = new HashMap<>();
         for (SubAssistance s : subAssistances) {
@@ -218,7 +215,7 @@ public class ManagerController {
         Optional<String> assistanceTitle = Optional.ofNullable(request.getAssistanceTitle());
         Optional<String> subAssistanceTitle = Optional.ofNullable(request.getSubAssistanceTitle());
 
-        List<Order> orders = orderService.managerFilterOrders(request.getCustomerId(), request.getTechnicianId(), from, until, status, assistanceTitle,subAssistanceTitle);
+        List<Order> orders = personService.managerFilterOrders(request.getCustomerId(), request.getTechnicianId(), from, until, status, assistanceTitle,subAssistanceTitle);
         List<ManagerOrderReportDTO> reportDTOS = new ArrayList<>();
         for(Order o: orders){
             reportDTOS.add(OrderMapper.INSTANCE.modelToReport(o));

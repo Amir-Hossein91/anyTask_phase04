@@ -14,7 +14,7 @@ import com.example.phase_04.mapper.OrderMapper;
 import com.example.phase_04.mapper.SubAssistanceMapper;
 import com.example.phase_04.mapper.TechnicianSuggestionMapper;
 import com.example.phase_04.service.impl.OrderServiceImpl;
-import com.example.phase_04.service.impl.SubAssistanceServiceImpl;
+import com.example.phase_04.service.impl.PersonServiceImpl;
 import com.example.phase_04.service.impl.TechnicianServiceImpl;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -33,14 +33,14 @@ public class TechnicianController {
 
     private final TechnicianServiceImpl technicianService;
     private final OrderServiceImpl orderService;
-    private final SubAssistanceServiceImpl subAssistanceService;
+    private final PersonServiceImpl personService;
 
     public TechnicianController (TechnicianServiceImpl technicianService,
                                  OrderServiceImpl orderService,
-                                 SubAssistanceServiceImpl subAssistanceService){
+                                 PersonServiceImpl personService){
         this.technicianService = technicianService;
         this.orderService = orderService;
-        this.subAssistanceService = subAssistanceService;
+        this.personService = personService;
     }
 
     @GetMapping("/relatedOrders")
@@ -69,7 +69,7 @@ public class TechnicianController {
 
     @GetMapping("/seeSubAssistance")
     public ResponseEntity<List<SubAssistanceResponseDTO>> seeSubAssistances(){
-        List<SubAssistance> subAssistances = subAssistanceService.showSubAssistancesToOthers();
+        List<SubAssistance> subAssistances = personService.showSubAssistancesToOthers();
         List<SubAssistanceResponseDTO> responseDTOS = new ArrayList<>();
 
         for(SubAssistance s: subAssistances)
@@ -88,7 +88,7 @@ public class TechnicianController {
     @PostMapping("/filterOrders")
     public ResponseEntity<List<OrderResponseDTO>> filterOrders (@RequestBody CustomerOrTechnicianFilterOrders request){
         Optional<OrderStatus> orderStatus = Optional.ofNullable(request.getOrderStatus());
-        List<Order> orders = orderService.customerOrTechnicianFilterOrders(orderStatus);
+        List<Order> orders = personService.customerOrTechnicianFilterOrders(orderStatus);
         List<OrderResponseDTO> orderDTOs = new ArrayList<>();
         for(Order o : orders)
             orderDTOs.add(OrderMapper.INSTANCE.modelToDto(o));
