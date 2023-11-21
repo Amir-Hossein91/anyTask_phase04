@@ -44,8 +44,6 @@ public class CustomerServiceImpl implements CustomerService {
 
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Customer customer = findByUsername(username);
-        if (customer == null)
-            throw new IllegalArgumentException("Only a customer can make an order");
         Assistance assistance = assistanceService.findAssistance(assistanceTitle);
         if (assistance == null)
             throw new NotFoundException(Constants.ASSISTANCE_NOT_FOUND);
@@ -78,7 +76,7 @@ public class CustomerServiceImpl implements CustomerService {
         return order;
     }
 
-    private boolean isSuggestionChoosingPossible(Person person, Order order) {
+    private void isSuggestionChoosingPossible(Person person, Order order) {
         if (order == null)
             throw new NotFoundException(Constants.NO_SUCH_ORDER);
 
@@ -88,7 +86,6 @@ public class CustomerServiceImpl implements CustomerService {
         if (!(order.getOrderStatus() == OrderStatus.WAITING_FOR_TECHNICIANS_SUGGESTIONS
                 || order.getOrderStatus() == OrderStatus.CHOOSING_TECHNICIAN))
             throw new NotFoundException(Constants.SUGGESTION_NOT_AVAILABLE_IN_THIS_STATUS);
-        return true;
     }
 
     public List<TechnicianSuggestion> seeTechnicianSuggestionsOrderedByPrice(long orderId) {
@@ -96,12 +93,10 @@ public class CustomerServiceImpl implements CustomerService {
         Customer customer = findByUsername(username);
 
         Order order = orderService.findById(orderId);
-        if (!isSuggestionChoosingPossible(customer, order))
-            throw new IllegalStateException("Can not see the technician suggestions");
+
+        isSuggestionChoosingPossible(customer, order);
 
         List<TechnicianSuggestion> technicianSuggestions = technicianSuggestionService.getSuggestionsOrderedByPrice(order);
-        if (technicianSuggestions == null)
-            throw new NotFoundException("No technician suggestion available for this order");
 
         if (order.getOrderStatus() == OrderStatus.WAITING_FOR_TECHNICIANS_SUGGESTIONS) {
             order.setOrderStatus(OrderStatus.CHOOSING_TECHNICIAN);
@@ -116,12 +111,10 @@ public class CustomerServiceImpl implements CustomerService {
         Customer customer = findByUsername(username);
 
         Order order = orderService.findById(orderId);
-        if (!isSuggestionChoosingPossible(customer, order))
-            throw new IllegalStateException("Can not see the technician suggestions");
+
+        isSuggestionChoosingPossible(customer, order);
 
         List<TechnicianSuggestion> technicianSuggestions = technicianSuggestionService.getSuggestionsOrderedByScore(order);
-        if (technicianSuggestions == null)
-            throw new NotFoundException("No technician suggestion available for this order");
 
         if (order.getOrderStatus() == OrderStatus.WAITING_FOR_TECHNICIANS_SUGGESTIONS) {
             order.setOrderStatus(OrderStatus.CHOOSING_TECHNICIAN);
@@ -136,22 +129,16 @@ public class CustomerServiceImpl implements CustomerService {
         Customer customer = findByUsername(username);
 
         Order order = orderService.findById(orderId);
-        if (!isSuggestionChoosingPossible(customer, order))
-            throw new IllegalStateException("Can not choose a technician suggestion in this state");
+
+        isSuggestionChoosingPossible(customer, order);
 
         List<TechnicianSuggestion> technicianSuggestions = technicianSuggestionService.getSuggestionsOrderedByPrice(order);
-
-        if (technicianSuggestions == null)
-            throw new NotFoundException(Constants.NO_TECHNICIAN_SUGGESTION_FOUND);
 
         List<Long> suggestionsIds = technicianSuggestions.stream()
                 .map(TechnicianSuggestion::getId)
                 .toList();
 
         TechnicianSuggestion suggestion = technicianSuggestionService.findById(suggestionId);
-
-        if (suggestion == null)
-            throw new NotFoundException(Constants.TECHNICIAN_SUGGESTION_NOT_EXIST);
 
         if (!suggestionsIds.contains(suggestion.getId()))
             throw new NotFoundException(Constants.TECHNICIAN_SUGGESTION_NOT_IN_LIST);
@@ -168,30 +155,12 @@ public class CustomerServiceImpl implements CustomerService {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Customer customer = findByUsername(username);
         Order order = orderService.findById(orderId);
-        if (order == null)
-            throw new NotFoundException(Constants.NO_SUCH_ORDER);
 
         if (!order.getCustomer().equals(customer))
             throw new NotFoundException(Constants.ORDER_NOT_BELONG_TO_CUSTOMER);
 
         if (order.getOrderStatus() != OrderStatus.TECHNICIAN_IS_ON_THE_WAY)
             throw new IllegalStateException(Constants.NO_TECHNICIAN_SELECTED);
-
-        List<TechnicianSuggestion> technicianSuggestions = technicianSuggestionService.getSuggestionsOrderedByPrice(order);
-
-        List<Long> suggestionsIds = technicianSuggestions.stream()
-                .map(TechnicianSuggestion::getId)
-                .toList();
-
-        TechnicianSuggestion suggestion = order.getChosenTechnicianSuggestion();
-        if (suggestion == null)
-            throw new NotFoundException(Constants.TECHNICIAN_SUGGESTION_NOT_EXIST);
-
-        if (!suggestionsIds.contains(suggestion.getId()))
-            throw new NotFoundException(Constants.TECHNICIAN_SUGGESTION_NOT_IN_LIST);
-
-        if (!suggestion.equals(order.getChosenTechnicianSuggestion()))
-            throw new NotFoundException(Constants.SUGGESTION_IS_NOT_THE_CHOSEN_ONE);
 
         order.setOrderStatus(OrderStatus.STARTED);
         order.setStartedTime(LocalDateTime.now());
@@ -203,30 +172,12 @@ public class CustomerServiceImpl implements CustomerService {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Customer customer = findByUsername(username);
         Order order = orderService.findById(orderId);
-        if (order == null)
-            throw new NotFoundException(Constants.NO_SUCH_ORDER);
 
         if (!order.getCustomer().equals(customer))
             throw new NotFoundException(Constants.ORDER_NOT_BELONG_TO_CUSTOMER);
 
         if (order.getOrderStatus() != OrderStatus.STARTED)
             throw new IllegalStateException(Constants.ORDER_NOT_STARTED);
-
-        List<TechnicianSuggestion> technicianSuggestions = technicianSuggestionService.getSuggestionsOrderedByPrice(order);
-
-        List<Long> suggestionsIds = technicianSuggestions.stream()
-                .map(TechnicianSuggestion::getId)
-                .toList();
-
-        TechnicianSuggestion suggestion = order.getChosenTechnicianSuggestion();
-        if (suggestion == null)
-            throw new NotFoundException(Constants.TECHNICIAN_SUGGESTION_NOT_EXIST);
-
-        if (!suggestionsIds.contains(suggestion.getId()))
-            throw new NotFoundException(Constants.TECHNICIAN_SUGGESTION_NOT_IN_LIST);
-
-        if (!suggestion.getTechnician().equals(order.getTechnician()))
-            throw new NotFoundException(Constants.SUGGESTION_IS_NOT_THE_CHOSEN_ONE);
 
         order.setOrderStatus(OrderStatus.FINISHED);
         Technician technician = order.getTechnician();
@@ -235,7 +186,6 @@ public class CustomerServiceImpl implements CustomerService {
 
         TechnicianSuggestion chosenSuggestion = order.getChosenTechnicianSuggestion();
 
-//        LocalDateTime suggestedFinishTime = chosenSuggestion.getTechSuggestedDate().plusHours(chosenSuggestion.getTaskEstimatedDuration());
         LocalDateTime suggestedFinishTime = order.getStartedTime().plusHours(chosenSuggestion.getTaskEstimatedDuration());
 
         if (order.getFinishedTime().isAfter(suggestedFinishTime)) {
@@ -253,9 +203,8 @@ public class CustomerServiceImpl implements CustomerService {
     public void payThePriceByCredit(long orderId) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Customer customer = findByUsername(username);
+
         Order order = orderService.findById(orderId);
-        if (order == null)
-            throw new NotFoundException(Constants.NO_SUCH_ORDER);
 
         if (!order.getCustomer().equals(customer))
             throw new NotFoundException(Constants.ORDER_NOT_BELONG_TO_CUSTOMER);
@@ -281,9 +230,8 @@ public class CustomerServiceImpl implements CustomerService {
     public void payThePriceOnline(String username, long orderId) {
 
         Customer customer = findByUsername(username);
+
         Order order = orderService.findById(orderId);
-        if (order == null)
-            throw new NotFoundException(Constants.NO_SUCH_ORDER);
 
         if (!order.getCustomer().equals(customer))
             throw new NotFoundException(Constants.ORDER_NOT_BELONG_TO_CUSTOMER);
@@ -304,9 +252,8 @@ public class CustomerServiceImpl implements CustomerService {
     public void scoreTheTechnician(long orderId, int score, String opinion) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Customer customer = findByUsername(username);
+
         Order order = orderService.findById(orderId);
-        if (order == null)
-            throw new NotFoundException(Constants.NO_SUCH_ORDER);
 
         if (!order.getCustomer().equals(customer))
             throw new NotFoundException(Constants.ORDER_NOT_BELONG_TO_CUSTOMER);
