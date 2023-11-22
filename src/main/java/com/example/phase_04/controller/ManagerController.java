@@ -182,14 +182,14 @@ public class ManagerController {
         Optional<String> lastname = Optional.ofNullable(request.getLastname());
         Optional<String> email = Optional.ofNullable(request.getEmail());
         Optional<String> subAssistanceTitle = Optional.ofNullable(request.getSubAssistanceTitle());
-        Optional<String> assistancetitle = Optional.ofNullable(request.getAssistanceTitle());
+        Optional<String> assistanceTitle = Optional.ofNullable(request.getAssistanceTitle());
         Optional<String> maxMin = Optional.ofNullable(request.getMaxMin());
         Optional<LocalDateTime> registeredFrom = Optional.ofNullable(request.getRegisteredFrom());
         Optional<LocalDateTime> registeredUntil = Optional.ofNullable(request.getRegisteredUntil());
         Optional<Integer> minOrders = Optional.ofNullable(request.getMinOrders());
         Optional<Integer> maxOrders = Optional.ofNullable(request.getMaxOrders());
 
-        List<Person> result = personService.managerFilterUsers(role, firstName, lastname, email, subAssistanceTitle, assistancetitle, maxMin,registeredFrom,registeredUntil,minOrders,maxOrders);
+        List<Person> result = personService.managerFilterUsers(role, firstName, lastname, email, subAssistanceTitle, assistanceTitle, maxMin,registeredFrom,registeredUntil,minOrders,maxOrders);
         List<PersonResponseDTO> responseDTOS = new ArrayList<>();
 
         for (Person p : result)

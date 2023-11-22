@@ -25,12 +25,10 @@ public class Constants {
     public static final String ORDER_NOT_BELONG_TO_CUSTOMER = "This order does not belong to this customer";
     public static final String NO_TECHNICIAN_SUGGESTION_FOUND = "This order does not have any technician suggestions yet";
     public static final String SUGGESTION_NOT_AVAILABLE_IN_THIS_STATUS = "Suggestions are not available in this order status";
-    public static final String TECHNICIAN_SUGGESTION_NOT_EXIST = "This technician suggestion id does not exist";
     public static final String TECHNICIAN_SUGGESTION_NOT_IN_LIST = "This technician suggestion id is not in this order's list";
     public static final String PAYING_NOT_POSSIBLE_IN_THIS_STATE = "Paying is not possible in this state of order";
     public static final String SCORING_NOT_POSSIBLE_IN_THIS_STATE = "Scoring the technician is only possible when order is 'Finished' ";
     public static final String NOT_ENOUGH_CREDIT = "Not enough credit";
     public static final String NO_TECHNICIAN_SELECTED = "No technician is selected yet";
-    public static final String SUGGESTION_IS_NOT_THE_CHOSEN_ONE = "This suggestion is not the one tha customer has chosen";
     public static final String ORDER_NOT_STARTED = "Order status can not be set as 'finished' before it gets started";
 }
