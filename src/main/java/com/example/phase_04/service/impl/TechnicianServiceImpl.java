@@ -162,8 +162,6 @@ public class TechnicianServiceImpl implements TechnicianService {
         technicianSuggestion.setTechnician(technician);
 
         Order order = orderService.findById(orderId);
-        if (order == null)
-            throw new NotFoundException(Constants.NO_SUCH_ORDER);
 
         orderService.sendTechnicianSuggestion(technician, order, technicianSuggestion);
     }
@@ -176,8 +174,6 @@ public class TechnicianServiceImpl implements TechnicianService {
             throw new DeactivatedTechnicianException(Constants.DEACTIVATED_TECHNICIAN);
 
         Order order = orderService.findById(orderId);
-        if (order == null)
-            throw new NotFoundException(Constants.NO_SUCH_ORDER);
 
         if(!order.getTechnician().equals(technician))
             throw new NotFoundException(Constants.ORDER_IS_NOT_RELATED);
