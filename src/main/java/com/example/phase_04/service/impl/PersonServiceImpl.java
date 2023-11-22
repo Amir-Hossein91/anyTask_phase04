@@ -60,14 +60,12 @@ public class PersonServiceImpl implements PersonService {
     public void changePassword(String oldPassword, String newPassword) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Person fetched = findByUsername(username);
-        if (fetched != null) {
-            if(fetched instanceof Technician && !((Technician) fetched).isActive())
-                    throw new DeactivatedTechnicianException(Constants.DEACTIVATED_TECHNICIAN);
-            if (!passwordEncoder.matches(oldPassword, fetched.getPassword()))
-                throw new IllegalArgumentException(Constants.INCORRECT_PASSWORD);
-            fetched.setPassword(passwordEncoder.encode(newPassword));
-            saveOrUpdate(fetched);
-        }
+        if (fetched instanceof Technician && !((Technician) fetched).isActive())
+            throw new DeactivatedTechnicianException(Constants.DEACTIVATED_TECHNICIAN);
+        if (!passwordEncoder.matches(oldPassword, fetched.getPassword()))
+            throw new IllegalArgumentException(Constants.INCORRECT_PASSWORD);
+        fetched.setPassword(passwordEncoder.encode(newPassword));
+        saveOrUpdate(fetched);
     }
 
     @Override
@@ -131,16 +129,16 @@ public class PersonServiceImpl implements PersonService {
         return fetched;
     }
 
-    public List<Person> filter(Optional<String> role,
-                               Optional<String> firstName,
-                               Optional<String> lastname,
-                               Optional<String> email,
-                               long subAssistanceId,
-                               Optional<String> maxMin,
-                               Optional<LocalDateTime> from,
-                               Optional<LocalDateTime> until,
-                               Optional<Integer> minOrders,
-                               Optional<Integer> maxOrders) {
+    public List<Person> managerFilterUsers(Optional<String> role,
+                                           Optional<String> firstName,
+                                           Optional<String> lastname,
+                                           Optional<String> email,
+                                           long subAssistanceId,
+                                           Optional<String> maxMin,
+                                           Optional<LocalDateTime> from,
+                                           Optional<LocalDateTime> until,
+                                           Optional<Integer> minOrders,
+                                           Optional<Integer> maxOrders) {
 
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Person> cq = cb.createQuery(Person.class);
@@ -154,10 +152,10 @@ public class PersonServiceImpl implements PersonService {
         firstName.map(fn -> finalPredicates.add(cb.like(personRoot.get("firstName"), "%" + fn + "%")));
         lastname.map(ln -> finalPredicates.add(cb.like(personRoot.get("lastName"), "%" + ln + "%")));
         email.map(e -> finalPredicates.add(cb.like(personRoot.get("email"), "%" + e + "%")));
-        from.map(f -> finalPredicates.add(cb.greaterThanOrEqualTo(personRoot.get("registrationDate"),f)));
-        until.map(u -> finalPredicates.add(cb.lessThanOrEqualTo(personRoot.get("registrationDate"),u)));
-        minOrders.map(min -> finalPredicates.add(cb.greaterThanOrEqualTo(personRoot.get("orderCount"),min)));
-        maxOrders.map(max -> finalPredicates.add(cb.lessThanOrEqualTo(personRoot.get("orderCount"),max)));
+        from.map(f -> finalPredicates.add(cb.greaterThanOrEqualTo(personRoot.get("registrationDate"), f)));
+        until.map(u -> finalPredicates.add(cb.lessThanOrEqualTo(personRoot.get("registrationDate"), u)));
+        minOrders.map(min -> finalPredicates.add(cb.greaterThanOrEqualTo(personRoot.get("orderCount"), min)));
+        maxOrders.map(max -> finalPredicates.add(cb.lessThanOrEqualTo(personRoot.get("orderCount"), max)));
 
         if (subAssistanceId != 0) {
             SubAssistance subAssistance = subAssistanceService.findById(subAssistanceId);
@@ -228,35 +226,35 @@ public class PersonServiceImpl implements PersonService {
         List<Predicate> predicates = new ArrayList<>();
 
 
-        if(customerId != 0){
+        if (customerId != 0) {
             Customer fetchedCustomer = customerService.findById(customerId);
-            predicates.add(cb.equal(orderRoot.get("customer"),fetchedCustomer));
+            predicates.add(cb.equal(orderRoot.get("customer"), fetchedCustomer));
         }
 
-        if(technicianId != 0){
+        if (technicianId != 0) {
             Technician fetchedTechnician = technicianService.findById(technicianId);
-            predicates.add(cb.equal(orderRoot.get("technician"),fetchedTechnician));
+            predicates.add(cb.equal(orderRoot.get("technician"), fetchedTechnician));
         }
 
         from.map(f -> predicates.add(cb.greaterThanOrEqualTo(orderRoot.get("orderRegistrationDateAndTime"), f)));
         until.map(u -> predicates.add(cb.lessThanOrEqualTo(orderRoot.get("orderRegistrationDateAndTime"), u)));
-        status.map(st -> predicates.add((cb.equal(orderRoot.get("orderStatus"),st))));
+        status.map(st -> predicates.add((cb.equal(orderRoot.get("orderStatus"), st))));
 
-        if(assistanceTitle.isPresent()){
+        if (assistanceTitle.isPresent()) {
             List<Predicate> subAssistancePredicates = new ArrayList<>();
             Assistance assistance = assistanceService.findAssistance(assistanceTitle.get());
             List<SubAssistance> fetchedSubAssistances = subAssistanceService.findSubAssistance(assistance);
-            for(SubAssistance s: fetchedSubAssistances)
-                subAssistancePredicates.add(cb.equal(orderRoot.get("subAssistance"),s));
+            for (SubAssistance s : fetchedSubAssistances)
+                subAssistancePredicates.add(cb.equal(orderRoot.get("subAssistance"), s));
 
             predicates.add(cb.or(subAssistancePredicates.toArray(new Predicate[0])));
         }
 
-        if(subAssistanceTitle.isPresent()){
+        if (subAssistanceTitle.isPresent()) {
             List<Predicate> subAssistancePredicates = new ArrayList<>();
             List<SubAssistance> fetchedSubAssistances = subAssistanceService.findSubAssistance(subAssistanceTitle.get());
-            for(SubAssistance s: fetchedSubAssistances)
-                subAssistancePredicates.add(cb.equal(orderRoot.get("subAssistance"),s));
+            for (SubAssistance s : fetchedSubAssistances)
+                subAssistancePredicates.add(cb.equal(orderRoot.get("subAssistance"), s));
 
             predicates.add(cb.or(subAssistancePredicates.toArray(new Predicate[0])));
         }
@@ -277,12 +275,12 @@ public class PersonServiceImpl implements PersonService {
         Root<Order> orderRoot = cq.from(Order.class);
         List<Predicate> predicates = new ArrayList<>();
 
-        if(person instanceof Customer)
-            predicates.add(cb.equal(orderRoot.get("customer"),person));
+        if (person instanceof Customer)
+            predicates.add(cb.equal(orderRoot.get("customer"), person));
         else
-            predicates.add(cb.equal(orderRoot.get("technician"),person));
+            predicates.add(cb.equal(orderRoot.get("technician"), person));
 
-        orderStatus.map(o -> predicates.add(cb.equal(orderRoot.get("orderStatus"),o)));
+        orderStatus.map(o -> predicates.add(cb.equal(orderRoot.get("orderStatus"), o)));
 
         cq.select(orderRoot).where(predicates.toArray(new Predicate[0]));
         Query query = em.createQuery(cq);
@@ -302,12 +300,7 @@ public class PersonServiceImpl implements PersonService {
 
     @Transactional
     public List<SubAssistance> showSubAssistancesToManager() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        Person person = findByUsername(username);
-        if (person instanceof Manager) {
             return subAssistanceService.findAll();
-        } else
-            throw new IllegalArgumentException("This operation is only valid for manager");
     }
 
     @Transactional
