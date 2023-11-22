@@ -133,7 +133,8 @@ public class PersonServiceImpl implements PersonService {
                                            Optional<String> firstName,
                                            Optional<String> lastname,
                                            Optional<String> email,
-                                           long subAssistanceId,
+                                           Optional<String> subAssistanceTitle,
+                                           Optional<String> assistanceTitle,
                                            Optional<String> maxMin,
                                            Optional<LocalDateTime> from,
                                            Optional<LocalDateTime> until,
@@ -147,8 +148,6 @@ public class PersonServiceImpl implements PersonService {
 
         List<Predicate> finalPredicates = new ArrayList<>();
 
-        List<Predicate> subAssistancePredicateList = new ArrayList<>();
-
         firstName.map(fn -> finalPredicates.add(cb.like(personRoot.get("firstName"), "%" + fn + "%")));
         lastname.map(ln -> finalPredicates.add(cb.like(personRoot.get("lastName"), "%" + ln + "%")));
         email.map(e -> finalPredicates.add(cb.like(personRoot.get("email"), "%" + e + "%")));
@@ -157,14 +156,41 @@ public class PersonServiceImpl implements PersonService {
         minOrders.map(min -> finalPredicates.add(cb.greaterThanOrEqualTo(personRoot.get("orderCount"), min)));
         maxOrders.map(max -> finalPredicates.add(cb.lessThanOrEqualTo(personRoot.get("orderCount"), max)));
 
-        if (subAssistanceId != 0) {
-            SubAssistance subAssistance = subAssistanceService.findById(subAssistanceId);
+        if (subAssistanceTitle.isPresent() && assistanceTitle.isEmpty()) {
+            List<Predicate> subAssistancePredicates = new ArrayList<>();
+            List<SubAssistance> fetchedSubAssistances = subAssistanceService.findSubAssistance(subAssistanceTitle.get());
+            for (SubAssistance s : fetchedSubAssistances) {
+                List<Technician> technicians = s.getTechnicians();
+                for (Technician t : technicians) {
+                    subAssistancePredicates.add(cb.equal(personRoot.get("id"), t.getId()));
+                }
+            }
+            Predicate subAssistancePredicate = cb.or(subAssistancePredicates.toArray(new Predicate[0]));
+            finalPredicates.add(subAssistancePredicate);
+        }
+        else if (assistanceTitle.isPresent() && subAssistanceTitle.isEmpty()) {
+            List<Predicate> assistancePredicates = new ArrayList<>();
+            Assistance assistance = assistanceService.findAssistance(assistanceTitle.get());
+            List<SubAssistance> fetchedSubAssistances = subAssistanceService.findSubAssistance(assistance);
+            for (SubAssistance s : fetchedSubAssistances) {
+                List<Technician> technicians = s.getTechnicians();
+                for (Technician t : technicians) {
+                    assistancePredicates.add(cb.equal(personRoot.get("id"), t.getId()));
+                }
+            }
+            Predicate assistancePredicate = cb.or(assistancePredicates.toArray(new Predicate[0]));
+            finalPredicates.add(assistancePredicate);
+        }
+        else if (subAssistanceTitle.isPresent()){
+            List<Predicate> assistancePredicates = new ArrayList<>();
+            Assistance assistance = assistanceService.findAssistance(assistanceTitle.get());
+            SubAssistance subAssistance = subAssistanceService.findSubAssistance(subAssistanceTitle.get(),assistance);
             List<Technician> technicians = subAssistance.getTechnicians();
             for (Technician t : technicians) {
-                subAssistancePredicateList.add(cb.equal(personRoot.get("id"), t.getId()));
+                assistancePredicates.add(cb.equal(personRoot.get("id"), t.getId()));
             }
-            Predicate subAssistancePredicate = cb.or(subAssistancePredicateList.toArray(new Predicate[0]));
-            finalPredicates.add(subAssistancePredicate);
+            Predicate assistancePredicate = cb.or(assistancePredicates.toArray(new Predicate[0]));
+            finalPredicates.add(assistancePredicate);
         }
 
         if (maxMin.isPresent()) {
@@ -182,7 +208,7 @@ public class PersonServiceImpl implements PersonService {
             }
         }
 
-        cq.select(personRoot).where(finalPredicates.toArray(new Predicate[0]));
+        cq.select(personRoot).where(cb.and(finalPredicates.toArray(new Predicate[0])));
         Query query = em.createQuery(cq);
         List<Person> result = query.getResultList();
 
@@ -240,7 +266,7 @@ public class PersonServiceImpl implements PersonService {
         until.map(u -> predicates.add(cb.lessThanOrEqualTo(orderRoot.get("orderRegistrationDateAndTime"), u)));
         status.map(st -> predicates.add((cb.equal(orderRoot.get("orderStatus"), st))));
 
-        if (assistanceTitle.isPresent()) {
+        if (assistanceTitle.isPresent() && subAssistanceTitle.isEmpty()) {
             List<Predicate> subAssistancePredicates = new ArrayList<>();
             Assistance assistance = assistanceService.findAssistance(assistanceTitle.get());
             List<SubAssistance> fetchedSubAssistances = subAssistanceService.findSubAssistance(assistance);
@@ -250,13 +276,19 @@ public class PersonServiceImpl implements PersonService {
             predicates.add(cb.or(subAssistancePredicates.toArray(new Predicate[0])));
         }
 
-        if (subAssistanceTitle.isPresent()) {
+        else if (subAssistanceTitle.isPresent() && assistanceTitle.isEmpty()) {
             List<Predicate> subAssistancePredicates = new ArrayList<>();
             List<SubAssistance> fetchedSubAssistances = subAssistanceService.findSubAssistance(subAssistanceTitle.get());
             for (SubAssistance s : fetchedSubAssistances)
                 subAssistancePredicates.add(cb.equal(orderRoot.get("subAssistance"), s));
 
             predicates.add(cb.or(subAssistancePredicates.toArray(new Predicate[0])));
+        }
+
+        else if (assistanceTitle.isPresent()){
+            Assistance assistance = assistanceService.findAssistance(assistanceTitle.get());
+            SubAssistance fetchedSubAssistance = subAssistanceService.findSubAssistance(subAssistanceTitle.get(),assistance);
+            predicates.add(cb.equal(orderRoot.get("subAssistance"), fetchedSubAssistance));
         }
 
         cq.select(orderRoot).where(predicates.toArray(new Predicate[0]));
@@ -300,7 +332,7 @@ public class PersonServiceImpl implements PersonService {
 
     @Transactional
     public List<SubAssistance> showSubAssistancesToManager() {
-            return subAssistanceService.findAll();
+        return subAssistanceService.findAll();
     }
 
     @Transactional
