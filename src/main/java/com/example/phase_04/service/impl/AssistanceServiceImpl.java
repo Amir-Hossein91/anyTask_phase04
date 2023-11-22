@@ -45,8 +45,8 @@ public class AssistanceServiceImpl implements AssistanceService {
 
     @Override
     @Transactional
-    public Assistance findAssistance(String assistanceName) {
-        return repository.findByTitle(assistanceName).orElse(null);
+    public Assistance findAssistance(String assistanceTitle) {
+        return repository.findByTitle(assistanceTitle).orElse(null);
     }
 
     public Assistance addAssistance(Assistance assistance) {

@@ -175,7 +175,7 @@ public class ManagerController {
             throw new IllegalArgumentException("'maxMin' field can only be 'max' or 'min'");
 
         if (request.getRole() != null && !(request.getRole().equals("technician") || request.getRole().equals("customer")))
-            throw new IllegalArgumentException("'roll' field can only be 'technician' or 'customer'");
+            throw new IllegalArgumentException("'role' field can only be 'technician' or 'customer'");
 
         Optional<String> role = Optional.ofNullable(request.getRole());
         Optional<String> firstName = Optional.ofNullable(request.getFirstName());
@@ -198,7 +198,7 @@ public class ManagerController {
         Optional<Integer> minOrders = Optional.ofNullable(request.getMinOrders());
         Optional<Integer> maxOrders = Optional.ofNullable(request.getMaxOrders());
 
-        List<Person> result = personService.filter(role, firstName, lastname, email, subAssistanceId, maxMin,registeredFrom,registeredUntil,minOrders,maxOrders);
+        List<Person> result = personService.managerFilterUsers(role, firstName, lastname, email, subAssistanceId, maxMin,registeredFrom,registeredUntil,minOrders,maxOrders);
         List<PersonResponseDTO> responseDTOS = new ArrayList<>();
 
         for (Person p : result)
